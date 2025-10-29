@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: SistemaAcademico/Dockerfile
+    container_name: sistemaacademico-api-win
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Use SQL AUTH to connect to SQL Server on the host
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal\\SQLEXPRESS;Database=Academico;User Id=sa;Password=Passw0rd!123;TrustServerCertificate=True;Encrypt=False
+      - Jwt__Issuer=SistemaAcademico
+      - Jwt__Audience=SistemaAcademicoAudience
+      - Jwt__Key=x7GQkP3mT1a9Wf6uR2y8Nq4Lz5Hc7Vd1Jk3Sg9Bv2Xy6Mp4Tr8Za0Lc2Qw6Ef9HZ
+      - Jwt__DurationMinutes=60
+    ports:
+      - "8080:8080"

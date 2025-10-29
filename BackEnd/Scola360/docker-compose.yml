@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqldata
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Passw0rd!123
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: SistemaAcademico/Dockerfile.linux
+    container_name: sistemaacademico-api
+    depends_on:
+      - sqldata
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqldata,1433;Database=Academico;User Id=sa;Password=Passw0rd!123;TrustServerCertificate=True;Encrypt=False
+      - Jwt__Issuer=SistemaAcademico
+      - Jwt__Audience=SistemaAcademicoAudience
+      - Jwt__Key=x7GQkP3mT1a9Wf6uR2y8Nq4Lz5Hc7Vd1Jk3Sg9Bv2Xy6Mp4Tr8Za0Lc2Qw6Ef9HZ
+      - Jwt__DurationMinutes=60
+    ports:
+      - "8080:8080"
+
+volumes:
+  sqldata:

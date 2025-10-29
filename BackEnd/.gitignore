@@ -1,0 +1,14 @@
+﻿################################################################################
+# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
+################################################################################
+
+/Scola360/.vs
+/Scola360/Scola360.Academico.Domain/bin/Debug/net9.0
+/Scola360/Scola360.Academico.Application/bin/Debug/net9.0
+/Scola360/Scola360.Academico/bin/Debug/net9.0
+/Scola360/Scola360.Academico/obj
+*.tmp
+/Scola360/Scola360.Academico.Application/obj
+/Scola360/Scola360.Academico.Domain/obj
+/Scola360/Scola360.Academico.Infrastructure/bin/Debug/net9.0
+/Scola360/Scola360.Academico.Infrastructure/obj

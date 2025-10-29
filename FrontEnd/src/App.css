@@ -1,0 +1,11 @@
+/* Estilos globais da aplicação */
+.App {
+  min-height: 100vh;
+}
+
+/* Reset de estilos padrão */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

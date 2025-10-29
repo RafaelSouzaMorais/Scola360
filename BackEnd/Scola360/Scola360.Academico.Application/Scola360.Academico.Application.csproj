@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Profiles\Resolvers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scola360.Academico.Domain\Scola360.Academico.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
