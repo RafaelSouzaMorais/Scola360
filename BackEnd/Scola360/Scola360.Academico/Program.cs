@@ -66,6 +66,10 @@ builder.Services.AddScoped<IResponsavelAlunoRepository, ResponsavelAlunoReposito
 builder.Services.AddScoped<IDisciplinaRepository, DisciplinaRepository>();
 builder.Services.AddScoped<IDisciplinaService, DisciplinaService>();
 
+//Curso DI
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
+builder.Services.AddScoped<ICursoService, CursoService>();
+
 builder.Services.AddAutoMapper(typeof(AlunoProfile).Assembly,
                                typeof(PessoaProfile).Assembly,
                                typeof(DisciplinaProfile).Assembly);
