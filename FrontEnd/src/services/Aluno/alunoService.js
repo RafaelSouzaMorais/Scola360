@@ -1,15 +1,15 @@
 import api from "../api";
 
 export async function cadastrarAluno(aluno) {
-  // POST para /api/alunos
+  console.log("Cadastrando aluno:", aluno);
   const { data } = await api.post("/api/alunos", aluno);
-  console.log("Aluno cadastrado:", data);
+  console.debug("Aluno cadastrado:", data);
   return data;
 }
 
 export async function listarAlunos() {
   const { data } = await api.get("/api/alunos");
-  console.log("Alunos listados:", data);
+  console.debug("Alunos listados:", data);
   return data;
 }
 

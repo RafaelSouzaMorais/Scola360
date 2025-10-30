@@ -19,7 +19,6 @@ const MainLayout = () => {
       />
       <Layout>
         <MainSidebar
-          userRoles={user?.roles || []}
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
         />

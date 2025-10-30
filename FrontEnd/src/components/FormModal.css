@@ -1,0 +1,173 @@
+.form-modal .ant-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 24px;
+  border-radius: 8px 8px 0 0;
+}
+
+.form-modal .ant-modal-title {
+  color: white !important;
+  font-weight: 600;
+  font-size: 18px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-modal .ant-modal-close {
+  color: white !important;
+  font-size: 16px;
+}
+
+.form-modal .ant-modal-close:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.form-modal-content {
+  padding: 8px 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.form-modal-footer {
+  text-align: right;
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e8e8e8;
+  margin-top: 16px;
+}
+
+.form-modal .save-button {
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.3);
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.form-modal .save-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.4);
+}
+
+.form-modal .cancel-button {
+  border-color: #d9d9d9;
+  color: #595959;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.form-modal .cancel-button:hover {
+  border-color: #ff7875;
+  color: #ff7875;
+}
+
+/* Modo de edição */
+.form-modal.edit-mode .ant-modal-header {
+  background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
+}
+
+.form-modal.edit-mode .save-button {
+  background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
+  box-shadow: 0 2px 4px rgba(250, 140, 22, 0.3);
+}
+
+.form-modal.edit-mode .save-button:hover {
+  box-shadow: 0 4px 8px rgba(250, 140, 22, 0.4);
+}
+
+/* Modo de criação */
+.form-modal.create-mode .ant-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .form-modal {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .form-modal .ant-modal {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .form-modal .ant-modal-content {
+    height: 100vh;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-modal .ant-modal-header {
+    border-radius: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .form-modal .ant-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .form-modal-content {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .form-modal-footer {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding: 16px 0;
+    background: #fafafa;
+    text-align: center;
+  }
+
+  .form-modal-footer .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-modal-footer .ant-btn {
+    flex: 1;
+    max-width: 150px;
+  }
+}
+
+/* Variantes de tamanho */
+.form-modal.small {
+  max-width: 400px;
+}
+
+.form-modal.large {
+  max-width: 900px;
+}
+
+.form-modal.extra-large {
+  max-width: 1200px;
+}
+
+/* Variantes de tema */
+.form-modal.theme-success .ant-modal-header {
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+}
+
+.form-modal.theme-warning .ant-modal-header {
+  background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+}
+
+.form-modal.theme-danger .ant-modal-header {
+  background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+}
+
+/* Modo sem footer customizado */
+.form-modal.no-footer .form-modal-footer {
+  display: none;
+}
+
+/* Loading state */
+.form-modal .save-button.ant-btn-loading {
+  pointer-events: none;
+}

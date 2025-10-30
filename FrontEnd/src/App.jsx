@@ -5,6 +5,8 @@ import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ListaAlunos from "./pages/Alunos/Aluno";
 import { useAuth } from "./contexts/AuthContext";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+import { usePermissions } from "./hooks/usePermissions";
 import "./App.css";
 import Disciplinas from "./pages/Disciplinas/Disciplina";
 
@@ -23,56 +25,134 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+// Componente que usa as permissões centralizadas
+const AppRoutes = () => {
+  const { routePermissions } = usePermissions();
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
+
+        {/* Dashboard */}
+        <Route
+          path="dashboard"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.dashboard}>
+              <Dashboard />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Alunos */}
+        <Route
+          path="students"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.students}>
+              <ListaAlunos />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Professores */}
+        <Route
+          path="teachers"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.teachers}>
+              <div>Página de Professores (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Turmas */}
+        <Route
+          path="classes"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.classes}>
+              <div>Página de Turmas (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Disciplinas */}
+        <Route
+          path="subjects"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.subjects}>
+              <Disciplinas />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Notas */}
+        <Route
+          path="grades"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.grades}>
+              <div>Página de Notas (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Financeiro */}
+        <Route
+          path="financial"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.financial}>
+              <div>Página Financeira (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Relatórios */}
+        <Route
+          path="reports"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.reports}>
+              <div>Página de Relatórios (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Comunicação */}
+        <Route
+          path="communication"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.communication}>
+              <div>Página de Comunicação (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Configurações */}
+        <Route
+          path="settings"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.settings}>
+              <div>Página de Configurações (em breve)</div>
+            </RoleProtectedRoute>
+          }
+        />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="students" element={<ListaAlunos />} />
-          <Route path="teachers" element={<Disciplinas />} />
-          <Route
-            path="classes"
-            element={<div>Página de Turmas (em breve)</div>}
-          />
-          <Route
-            path="subjects"
-            element={<div>Página de Disciplinas (em breve)</div>}
-          />
-          <Route
-            path="grades"
-            element={<div>Página de Notas (em breve)</div>}
-          />
-          <Route
-            path="financial"
-            element={<div>Página Financeira (em breve)</div>}
-          />
-          <Route
-            path="reports"
-            element={<div>Página de Relatórios (em breve)</div>}
-          />
-          <Route
-            path="communication"
-            element={<div>Página de Comunicação (em breve)</div>}
-          />
-          <Route
-            path="settings"
-            element={<div>Página de Configurações (em breve)</div>}
-          />
-        </Route>
-
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   );
 }

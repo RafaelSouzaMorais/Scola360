@@ -56,38 +56,6 @@ const MainHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
   return (
     <Header className="main-header">
       <div className="header-left">
-        {onToggleSidebar && (
-          <span
-            className="sidebar-toggle"
-            onClick={onToggleSidebar}
-            aria-label={isSidebarCollapsed ? "Abrir menu" : "Fechar menu"}
-          >
-            <span
-              className="anticon"
-              style={{ fontSize: 22, color: "white", marginRight: 12 }}
-            >
-              {isSidebarCollapsed ? (
-                <svg
-                  width="1em"
-                  height="1em"
-                  fill="currentColor"
-                  viewBox="0 0 1024 1024"
-                >
-                  <path d="M328 544h368c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z" />
-                </svg>
-              ) : (
-                <svg
-                  width="1em"
-                  height="1em"
-                  fill="currentColor"
-                  viewBox="0 0 1024 1024"
-                >
-                  <path d="M176 511.9c0 4.4 3.6 8 8 8h656c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H184c-4.4 0-8 3.6-8 8v48z" />
-                </svg>
-              )}
-            </span>
-          </span>
-        )}
         <div className="header-logo">
           <div className="logo-circle">🎓</div>
           <Text strong style={{ color: "white", fontSize: "18px" }}>

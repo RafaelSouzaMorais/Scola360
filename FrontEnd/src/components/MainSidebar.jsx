@@ -14,41 +14,14 @@ import {
   ScheduleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
+import { usePermissions } from "../hooks/usePermissions";
 
 const { Sider } = Layout;
 
-const MainSidebar = ({ userRoles = [], collapsed, setCollapsed }) => {
+const MainSidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Normaliza roles para lowercase e garante array
-  const effectiveRoles = Array.isArray(userRoles)
-    ? userRoles.map((r) => String(r).toLowerCase())
-    : [];
-
-  // Define quais menus cada role pode acessar
-  const menuPermissions = {
-    dashboard: ["admin", "teacher", "secretary", "financial"],
-    students: ["admin", "secretary", "teacher"],
-    teachers: ["admin", "secretary"],
-    classes: ["admin", "secretary", "teacher"],
-    subjects: ["admin", "teacher"],
-    grades: ["admin", "teacher"],
-    financial: ["admin", "financial"],
-    reports: ["admin", "secretary", "financial"],
-    communication: ["admin", "teacher", "secretary"],
-    settings: ["secretary"],
-  };
-
-  // Verifica se o usuário tem permissão para acessar um menu
-  const hasPermission = (menuKey) => {
-    if (!menuPermissions[menuKey]) return true;
-    // Fallback: se não há roles (não carregado/ausente), não esconda o menu
-    if (!effectiveRoles.length) return true;
-    return menuPermissions[menuKey].some((role) =>
-      effectiveRoles.includes(role)
-    );
-  };
+  const { hasPermission } = usePermissions();
 
   const menuItems = [
     hasPermission("dashboard") && {

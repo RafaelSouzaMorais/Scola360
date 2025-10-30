@@ -5,45 +5,72 @@ import { useAuth } from "./AuthContext.jsx";
 const EnumContext = createContext({
   sexo: [],
   corRaca: [],
+  tipoCertidao: [],
+  statusMatricula: [],
+  tipoFuncionario: [],
+  situacaoFinal: [],
+  tipoCalculoNota: [],
   loading: true,
 });
 
 export function EnumProvider({ children }) {
   const [sexo, setSexo] = useState([]);
   const [corRaca, setCorRaca] = useState([]);
+  const [tipoCertidao, setTipoCertidao] = useState([]);
+  const [statusMatricula, setStatusMatricula] = useState([]);
+  const [tipoFuncionario, setTipoFuncionario] = useState([]);
+  const [situacaoFinal, setSituacaoFinal] = useState([]);
+  const [tipoCalculoNota, setTipoCalculoNota] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     async function fetchEnums() {
       try {
-        const [sexoRes, corRacaRes] = await Promise.all([
-          api.get("/api/enums/sexo"),
-          api.get("/api/enums/corraca"),
-        ]);
-        setSexo(
-          Array.isArray(sexoRes.data)
-            ? sexoRes.data.map((item) => ({
-                label: item.name,
+        const response = await api.get("/api/enums");
+        const enumsData = response.data;
+
+        // Função auxiliar para converter enums em formato de opções para Ant Design
+        const convertToOptions = (enumArray) => {
+          return Array.isArray(enumArray)
+            ? enumArray.map((item) => ({
+                label: formatEnumName(item.name),
                 value: item.value,
               }))
-            : []
-        );
-        setCorRaca(
-          Array.isArray(corRacaRes.data)
-            ? corRacaRes.data.map((item) => ({
-                label: item.name,
-                value: item.value,
-              }))
-            : []
-        );
+            : [];
+        };
+
+        // Função para formatar nomes dos enums (converter de PascalCase para texto legível)
+        const formatEnumName = (name) => {
+          return name
+            .replace(/([A-Z])/g, " $1") // Adiciona espaço antes de maiúsculas
+            .replace(/^./, (str) => str.toUpperCase()) // Primeira letra maiúscula
+            .trim(); // Remove espaços extras
+        };
+
+        // Processa todos os enums
+        setSexo(convertToOptions(enumsData.sexo));
+        setCorRaca(convertToOptions(enumsData.corRaca));
+        setTipoCertidao(convertToOptions(enumsData.tipoCertidao));
+        setStatusMatricula(convertToOptions(enumsData.statusMatricula));
+        setTipoFuncionario(convertToOptions(enumsData.tipoFuncionario));
+        setSituacaoFinal(convertToOptions(enumsData.situacaoFinal));
+        setTipoCalculoNota(convertToOptions(enumsData.tipoCalculoNota));
       } catch (err) {
+        console.error("Erro ao carregar enums:", err);
+        // Limpa todos os enums em caso de erro
         setSexo([]);
         setCorRaca([]);
+        setTipoCertidao([]);
+        setStatusMatricula([]);
+        setTipoFuncionario([]);
+        setSituacaoFinal([]);
+        setTipoCalculoNota([]);
       } finally {
         setLoading(false);
       }
     }
+
     if (isAuthenticated) {
       setLoading(true);
       fetchEnums();
@@ -51,12 +78,28 @@ export function EnumProvider({ children }) {
       // Limpa enums quando desautenticar
       setSexo([]);
       setCorRaca([]);
+      setTipoCertidao([]);
+      setStatusMatricula([]);
+      setTipoFuncionario([]);
+      setSituacaoFinal([]);
+      setTipoCalculoNota([]);
       setLoading(false);
     }
   }, [isAuthenticated]);
 
   return (
-    <EnumContext.Provider value={{ sexo, corRaca, loading }}>
+    <EnumContext.Provider
+      value={{
+        sexo,
+        corRaca,
+        tipoCertidao,
+        statusMatricula,
+        tipoFuncionario,
+        situacaoFinal,
+        tipoCalculoNota,
+        loading,
+      }}
+    >
       {children}
     </EnumContext.Provider>
   );

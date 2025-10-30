@@ -1,0 +1,110 @@
+.search-filters {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.search-filters:hover {
+  border-color: #d9d9d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.search-filters-actions {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.search-filters .search-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.search-filters .search-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.search-filters .clear-button {
+  border-color: #d9d9d9;
+  color: #595959;
+  transition: all 0.3s ease;
+}
+
+.search-filters .clear-button:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+.search-filters .reset-button {
+  border-color: #ff7875;
+  color: #ff7875;
+  transition: all 0.3s ease;
+}
+
+.search-filters .reset-button:hover {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+  background: #fff2f0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .search-filters {
+    padding: 12px;
+  }
+
+  .search-filters-actions {
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .search-filters-actions .ant-btn {
+    flex: 1;
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-filters-actions .ant-btn {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Variantes de estilo */
+.search-filters.compact {
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.search-filters.elevated {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.search-filters.minimal {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+}
+
+.search-filters.dark {
+  background: #262626;
+  border-color: #434343;
+  color: white;
+}
+
+.search-filters.dark .clear-button {
+  border-color: #595959;
+  color: #d9d9d9;
+}
+
+.search-filters.dark .clear-button:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}

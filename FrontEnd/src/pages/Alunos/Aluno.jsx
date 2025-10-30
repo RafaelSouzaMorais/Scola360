@@ -5,7 +5,6 @@ import {
   Space,
   Popconfirm,
   message,
-  Drawer,
   Tabs,
   Form,
   Input,
@@ -29,6 +28,9 @@ import {
   atualizarPessoa,
   associarResponsavelAluno,
 } from "../../services/Aluno/pessoaService";
+import PageHeader from "../../components/PageHeader";
+import SearchFilters from "../../components/SearchFilters";
+import FormModal from "../../components/FormModal";
 import api from "../../services/api";
 import dayjs from "dayjs";
 import { useEnums } from "../../contexts/EnumContext";
@@ -36,7 +38,8 @@ import { useEnums } from "../../contexts/EnumContext";
 export default function ListaAlunos() {
   const [alunos, setAlunos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create"); // "create" ou "edit"
   const [tabKey, setTabKey] = useState("dados");
   const [responsavelId, setResponsavelId] = useState(null);
   const [alunoId, setAlunoId] = useState(null); // ID do aluno (GUID)
@@ -46,9 +49,11 @@ export default function ListaAlunos() {
   const [formResponsavel] = Form.useForm();
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroStatus, setFiltroStatus] = useState(null);
+  const [saveLoading, setSaveLoading] = useState(false);
   const {
     sexo: opcoesSexo,
     corRaca: opcoesCorRaca,
+    tipoCertidao: opcoesTipoCertidao,
     loading: enumsLoading,
   } = useEnums();
 
@@ -67,6 +72,24 @@ export default function ListaAlunos() {
   useEffect(() => {
     fetchAlunos();
   }, []);
+
+  // Funções para controle dos filtros
+  const handleSearch = () => {
+    // A filtragem já acontece automaticamente via alunosFiltrados
+    // Esta função pode ser usada para analytics ou outras ações
+    console.log("Busca realizada:", { filtroNome, filtroStatus });
+  };
+
+  const handleClearFilters = () => {
+    setFiltroNome("");
+    setFiltroStatus(null);
+  };
+
+  const handleResetFilters = () => {
+    setFiltroNome("");
+    setFiltroStatus(null);
+    fetchAlunos(); // Recarrega os dados
+  };
 
   // Filtro de alunos
   const alunosFiltrados = alunos.filter((aluno) => {
@@ -89,7 +112,8 @@ export default function ListaAlunos() {
   };
 
   const handleNovoAluno = () => {
-    setDrawerOpen(true);
+    setModalMode("create");
+    setModalOpen(true);
     setTabKey("dados");
     setAlunoId(null); // Reset ID ao criar novo aluno
     setPessoaId(null);
@@ -108,7 +132,8 @@ export default function ListaAlunos() {
   };
 
   const handleEditarAluno = async (id) => {
-    setDrawerOpen(true);
+    setModalMode("edit");
+    setModalOpen(true);
     setTabKey("dados");
     setAlunoId(id);
     try {
@@ -164,8 +189,8 @@ export default function ListaAlunos() {
     }
   };
 
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
+  const handleCloseModal = () => {
+    setModalOpen(false);
     setAlunoId(null);
     setPessoaId(null);
     form.resetFields();
@@ -173,184 +198,12 @@ export default function ListaAlunos() {
     formResponsavel.resetFields();
   };
   // Função dedicada para salvar responsável
-  const handleSalvarResponsavel = async () => {
+  const handleSaveAluno = async () => {
     try {
-      if (!alunoId) {
-        message.error("Cadastre o aluno antes de adicionar responsável.");
-        return;
-      }
-      const values = await formResponsavel.validateFields();
-      const responsavelPayload = {
-        nomeCompleto: values.nomeCompletoResponsavel,
-        cpf: values.cpfResponsavel,
-        dataNascimento: values.dataNascimentoResponsavel
-          ? values.dataNascimentoResponsavel.format("YYYY-MM-DD")
-          : undefined,
-        email: values.emailResponsavel,
-        telefone: values.telefoneResponsavel,
-        corRaca: values.corRacaResponsavel,
-        rg: values.rgResponsavel,
-        sexo: values.sexoResponsavel,
-        nacionalidade: values.nacionalidadeResponsavel,
-        naturalidade: values.naturalidadeResponsavel,
-      };
-      if (responsavelId) {
-        // PUT para atualizar pessoa responsável existente
-        const responsavelSalvo = await atualizarPessoa(
-          responsavelId,
-          responsavelPayload
-        );
-        message.success("Responsável atualizado com sucesso!");
-        formResponsavel.setFieldsValue({
-          ...values,
-          nomeCompletoResponsavel: responsavelSalvo.nomeCompleto,
-          cpfResponsavel: responsavelSalvo.cpf,
-          dataNascimentoResponsavel: responsavelSalvo.dataNascimento
-            ? dayjs(responsavelSalvo.dataNascimento)
-            : null,
-          emailResponsavel: responsavelSalvo.email,
-          telefoneResponsavel: responsavelSalvo.telefone,
-          corRacaResponsavel: responsavelSalvo.corRaca,
-          rgResponsavel: responsavelSalvo.rg,
-          sexoResponsavel: responsavelSalvo.sexo,
-          nacionalidadeResponsavel: responsavelSalvo.nacionalidade,
-          naturalidadeResponsavel: responsavelSalvo.naturalidade,
-        });
-      } else {
-        // POST para criar nova pessoa responsável
-        const responsavelSalvo = await cadastrarPessoa(responsavelPayload);
-        // Após criar, associa ao aluno
-        await associarResponsavelAluno(alunoId, responsavelSalvo.id);
-        message.success("Responsável salvo e associado com sucesso!");
-        setResponsavelId(responsavelSalvo.id);
-        formResponsavel.setFieldsValue({
-          ...values,
-          nomeCompletoResponsavel: responsavelSalvo.nomeCompleto,
-          cpfResponsavel: responsavelSalvo.cpf,
-          dataNascimentoResponsavel: responsavelSalvo.dataNascimento
-            ? dayjs(responsavelSalvo.dataNascimento)
-            : null,
-          emailResponsavel: responsavelSalvo.email,
-          telefoneResponsavel: responsavelSalvo.telefone,
-          corRacaResponsavel: responsavelSalvo.corRaca,
-          rgResponsavel: responsavelSalvo.rg,
-          sexoResponsavel: responsavelSalvo.sexo,
-          nacionalidadeResponsavel: responsavelSalvo.nacionalidade,
-          naturalidadeResponsavel: responsavelSalvo.naturalidade,
-        });
-      }
-    } catch (err) {
-      if (err?.errorFields) return;
-      if (err?.response?.data?.message) {
-        message.error(err.response.data.message);
-      } else {
-        message.error("Erro ao salvar responsável.");
-      }
-    }
-  };
-
-  // Função dedicada para salvar endereço
-  const handleSalvarEndereco = async () => {
-    try {
-      console.log("handleSalvarEndereco chamado", { pessoaId });
-      if (!pessoaId) {
-        message.error(
-          "Pessoa do aluno não identificada. Abra/cadastre o aluno primeiro."
-        );
-        return;
-      }
-      const enderecoValues = await formEndereco.validateFields();
-      const enderecoPayload = {
-        pessoaId: pessoaId,
-        cep: enderecoValues.cep,
-        logradouro: enderecoValues.logradouro,
-        numero: enderecoValues.numero,
-        complemento: enderecoValues.complemento,
-        bairro: enderecoValues.bairro,
-        cidade: enderecoValues.cidade,
-        estado: enderecoValues.uf,
-        uf: enderecoValues.uf,
-        pais: enderecoValues.pais || "Brasil",
-        tipo: enderecoValues.tipo || "Residencial",
-        principal: enderecoValues.principal ?? true,
-      };
-
-      // Se for update, adiciona o ID no payload
-      if (enderecoValues.enderecoId) {
-        enderecoPayload.id = enderecoValues.enderecoId;
-      }
-      console.log("Payload endereço:", enderecoPayload);
-      if (enderecoValues.enderecoId) {
-        console.log(
-          "Chamando atualizarEnderecoPessoa",
-          pessoaId,
-          enderecoValues.enderecoId,
-          enderecoPayload
-        );
-        const enderecoSalvo = await atualizarEnderecoPessoa(
-          pessoaId,
-          enderecoValues.enderecoId,
-          enderecoPayload
-        );
-        console.log("Retorno atualizarEnderecoPessoa:", enderecoSalvo);
-        message.success("Endereço atualizado com sucesso!");
-        // Mapeia o retorno do backend (PascalCase) para o formato do form (camelCase)
-        formEndereco.setFieldsValue({
-          logradouro: enderecoSalvo.Logradouro || enderecoSalvo.logradouro,
-          numero: enderecoSalvo.Numero || enderecoSalvo.numero,
-          complemento: enderecoSalvo.Complemento || enderecoSalvo.complemento,
-          bairro: enderecoSalvo.Bairro || enderecoSalvo.bairro,
-          cidade: enderecoSalvo.Cidade || enderecoSalvo.cidade,
-          uf: enderecoSalvo.Estado || enderecoSalvo.estado || enderecoSalvo.uf,
-          cep: enderecoSalvo.CEP || enderecoSalvo.cep,
-          pais: enderecoSalvo.Pais || enderecoSalvo.pais,
-          tipo: enderecoSalvo.Tipo || enderecoSalvo.tipo,
-          principal: enderecoSalvo.Principal ?? enderecoSalvo.principal,
-          enderecoId:
-            (enderecoSalvo.Id || enderecoSalvo.id) ?? enderecoValues.enderecoId,
-        });
-      } else {
-        console.log(
-          "Chamando cadastrarEnderecoPessoa",
-          pessoaId,
-          enderecoPayload
-        );
-        const enderecoSalvo = await cadastrarEnderecoPessoa(
-          pessoaId,
-          enderecoPayload
-        );
-        console.log("Retorno cadastrarEnderecoPessoa:", enderecoSalvo);
-        message.success("Endereço salvo com sucesso!");
-        // Mapeia o retorno do backend (PascalCase) para o formato do form (camelCase)
-        formEndereco.setFieldsValue({
-          logradouro: enderecoSalvo.Logradouro || enderecoSalvo.logradouro,
-          numero: enderecoSalvo.Numero || enderecoSalvo.numero,
-          complemento: enderecoSalvo.Complemento || enderecoSalvo.complemento,
-          bairro: enderecoSalvo.Bairro || enderecoSalvo.bairro,
-          cidade: enderecoSalvo.Cidade || enderecoSalvo.cidade,
-          uf: enderecoSalvo.Estado || enderecoSalvo.estado || enderecoSalvo.uf,
-          cep: enderecoSalvo.CEP || enderecoSalvo.cep,
-          pais: enderecoSalvo.Pais || enderecoSalvo.pais,
-          tipo: enderecoSalvo.Tipo || enderecoSalvo.tipo,
-          principal: enderecoSalvo.Principal ?? enderecoSalvo.principal,
-          enderecoId: enderecoSalvo.Id || enderecoSalvo.id,
-        });
-      }
-    } catch (err) {
-      console.error("Erro handleSalvarEndereco", err);
-      if (err?.errorFields) return;
-      if (err?.response?.data?.message) {
-        message.error(err.response.data.message);
-      } else {
-        message.error("Erro ao salvar endereço.");
-      }
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
+      setSaveLoading(true);
       const values = await form.validateFields();
-      if (tabKey === "dados" && !alunoId) {
+
+      if (modalMode === "create") {
         // Cadastro novo aluno
         const payload = {
           nomeCompleto: values.nomeCompleto,
@@ -390,20 +243,17 @@ export default function ListaAlunos() {
           } else {
             setPessoaId(novoPessoaId);
           }
-          message.success(
-            "Aluno cadastrado com sucesso! Aba Endereço liberada."
-          );
+          message.success("Aluno cadastrado com sucesso!");
           fetchAlunos();
-          if (novoPessoaId) setTabKey("endereco");
+          handleCloseModal();
         } else {
           message.warning(
             "Aluno cadastrado, mas ID não foi retornado. Feche e reabra para editar."
           );
-          setDrawerOpen(false);
+          handleCloseModal();
           fetchAlunos();
-          form.resetFields();
         }
-      } else if (tabKey === "dados" && alunoId) {
+      } else if (modalMode === "edit") {
         // Atualizar dados do aluno (PUT)
         const payload = {
           nomeCompleto: values.nomeCompleto,
@@ -424,10 +274,7 @@ export default function ListaAlunos() {
         await api.put(`/api/alunos/${alunoId}`, payload);
         message.success("Dados do aluno atualizados com sucesso!");
         fetchAlunos();
-      } else {
-        message.info(
-          "Use os botões das abas para salvar Endereço ou Responsável."
-        );
+        handleCloseModal();
       }
     } catch (err) {
       if (err?.errorFields) return;
@@ -436,6 +283,8 @@ export default function ListaAlunos() {
       } else {
         message.error("Erro ao salvar dados.");
       }
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -485,23 +334,28 @@ export default function ListaAlunos() {
 
   return (
     <div className="max-w-4xl w-full mx-auto bg-white p-2 sm:p-4 md:p-6 rounded shadow-md mt-4 md:mt-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-        <h2 className="text-2xl font-bold">Alunos</h2>
-        <Button type="primary" onClick={handleNovoAluno}>
-          Novo Aluno
-        </Button>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <PageHeader
+        title="Alunos"
+        buttonText="Novo Aluno"
+        onButtonClick={handleNovoAluno}
+      />
+
+      <SearchFilters
+        onSearch={handleSearch}
+        onClear={handleClearFilters}
+        onReset={handleResetFilters}
+        showResetButton={true}
+        loading={loading}
+      >
         <Input
           placeholder="Pesquisar por nome"
           value={filtroNome}
           onChange={(e) => setFiltroNome(e.target.value)}
-          style={{ maxWidth: 220 }}
+          allowClear
         />
         <Select
           placeholder="Status"
           allowClear
-          style={{ minWidth: 120 }}
           value={filtroStatus}
           onChange={setFiltroStatus}
           options={[
@@ -509,7 +363,7 @@ export default function ListaAlunos() {
             { label: "Inativo", value: false },
           ]}
         />
-      </div>
+      </SearchFilters>
       <div style={{ width: "100%", overflowX: "auto" }}>
         <Table
           columns={columns}
@@ -520,13 +374,15 @@ export default function ListaAlunos() {
           scroll={{ x: 600 }}
         />
       </div>
-      <Drawer
-        title={alunoId ? "Editar Aluno" : "Cadastro de Aluno"}
-        width={window.innerWidth < 600 ? "100vw" : 520}
-        open={drawerOpen}
-        onClose={handleDrawerClose}
-        destroyOnClose
-        bodyStyle={{ padding: 0 }}
+
+      <FormModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveAluno}
+        mode={modalMode}
+        loading={saveLoading}
+        title={modalMode === "edit" ? "Editar Aluno" : "Novo Aluno"}
+        width={800}
       >
         <Tabs
           activeKey={tabKey}
@@ -539,7 +395,7 @@ export default function ListaAlunos() {
                 <Form
                   layout="vertical"
                   form={form}
-                  style={{ padding: 24 }}
+                  requiredMark={false}
                   initialValues={{ ativo: true }}
                 >
                   <Form.Item
@@ -626,10 +482,7 @@ export default function ListaAlunos() {
                   </Form.Item>
                   <Form.Item name="certidaoTipo" label="Tipo da Certidão">
                     <Select
-                      options={[
-                        { label: "Novo", value: "novo" },
-                        { label: "Antigo", value: "antigo" },
-                      ]}
+                      options={opcoesTipoCertidao}
                       placeholder="Selecione"
                     />
                   </Form.Item>
@@ -640,16 +493,6 @@ export default function ListaAlunos() {
                       defaultChecked
                     />
                   </Form.Item>
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      type="primary"
-                      onClick={handleSubmit}
-                      style={{ minWidth: 100 }}
-                    >
-                      {alunoId ? "Atualizar" : "Cadastrar Aluno"}
-                    </Button>
-                    <Button onClick={handleDrawerClose}>Cancelar</Button>
-                  </div>
                 </Form>
               ),
             },
@@ -707,16 +550,6 @@ export default function ListaAlunos() {
                   <Form.Item name="enderecoId" style={{ display: "none" }}>
                     <Input type="hidden" />
                   </Form.Item>
-                  <Space size="middle" style={{ marginTop: 16 }} wrap>
-                    <Button
-                      type="primary"
-                      onClick={handleSalvarEndereco}
-                      style={{ minWidth: 100 }}
-                    >
-                      Salvar Endereço
-                    </Button>
-                    <Button onClick={handleDrawerClose}>Cancelar</Button>
-                  </Space>
                 </Form>
               ),
             },
@@ -803,23 +636,12 @@ export default function ListaAlunos() {
                       </Form.Item>
                     </Col>
                   </Row>
-
-                  <Space size="middle" style={{ marginTop: 16 }} wrap>
-                    <Button
-                      type="primary"
-                      onClick={handleSalvarResponsavel}
-                      style={{ minWidth: 100 }}
-                    >
-                      Salvar Responsável
-                    </Button>
-                    <Button onClick={handleDrawerClose}>Cancelar</Button>
-                  </Space>
                 </Form>
               ),
             },
           ]}
         />
-      </Drawer>
+      </FormModal>
     </div>
   );
 }
