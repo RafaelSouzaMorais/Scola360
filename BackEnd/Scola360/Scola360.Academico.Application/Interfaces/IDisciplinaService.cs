@@ -13,5 +13,6 @@ namespace Scola360.Academico.Application.Interfaces
         Task<IEnumerable<DisciplinaReadDto>> GetAllDisciplinasAsync(CancellationToken ct = default);
         Task<DisciplinaReadDto> CreateDisciplinaAsync(DisciplinaCreateDto dto, CancellationToken ct = default);
         Task<DisciplinaReadDto> UpdateDisciplinaAsync(DisciplinaUpdateDto dto, CancellationToken ct = default);
+        Task<bool> DeleteDisciplinaAsync(Guid id, CancellationToken ct = default);
     }
 }

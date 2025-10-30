@@ -58,4 +58,18 @@ public class DisciplinasController(IDisciplinaService service, ILogger<Disciplin
             return BadRequest(new { error = ex.Message });
         }
     }
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
+    {
+        try
+        {
+            await service.DeleteDisciplinaAsync(id, ct);
+            return Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "Erro ao deletar disciplina");
+            return BadRequest(new { error = ex.Message });
+        }
+    }
 }

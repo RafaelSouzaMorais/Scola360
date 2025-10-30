@@ -55,5 +55,11 @@ namespace Scola360.Academico.Application.Services
             return await repo.UpdateAsync(mapper.Map<Disciplina>(dto), ct)
                 .ContinueWith(t => mapper.Map<DisciplinaReadDto>(t.Result), ct);
         }
+        public async Task<bool> DeleteDisciplinaAsync(Guid id, CancellationToken ct = default)
+        {
+            if (id == Guid.Empty)
+                throw new ArgumentException("O ID da disciplina é inválido.");
+            return await repo.DeleteAsync(id, ct);
+        }
     }
 }
