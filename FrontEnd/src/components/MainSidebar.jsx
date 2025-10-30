@@ -29,25 +29,54 @@ const MainSidebar = ({ collapsed, setCollapsed }) => {
       icon: <HomeOutlined />,
       label: "Dashboard",
     },
-    hasPermission("students") && {
-      key: "/students",
-      icon: <UserOutlined />,
-      label: "Alunos",
-    },
-    hasPermission("teachers") && {
-      key: "/teachers",
-      icon: <TeamOutlined />,
-      label: "Professores",
-    },
-    hasPermission("classes") && {
-      key: "/classes",
-      icon: <ScheduleOutlined />,
-      label: "Turmas e Horários",
-    },
-    hasPermission("subjects") && {
-      key: "/subjects",
-      icon: <BookOutlined />,
-      label: "Disciplinas",
+    // Grupo de Cadastros
+    (hasPermission("students") ||
+      hasPermission("subjects") ||
+      hasPermission("teachers") ||
+      hasPermission("classes") ||
+      hasPermission("courses") ||
+      hasPermission("curriculum") ||
+      hasPermission("periods")) && {
+      key: "cadastro",
+      icon: <FileTextOutlined />,
+      label: "Cadastro",
+      children: [
+        hasPermission("students") && {
+          key: "/students",
+          icon: <UserOutlined />,
+          label: "Alunos",
+        },
+        hasPermission("subjects") && {
+          key: "/subjects",
+          icon: <BookOutlined />,
+          label: "Disciplinas",
+        },
+        hasPermission("courses") && {
+          key: "/courses",
+          icon: <FileTextOutlined />,
+          label: "Cursos",
+        },
+        hasPermission("curriculum") && {
+          key: "/curriculum",
+          icon: <FileTextOutlined />,
+          label: "Currículos",
+        },
+        hasPermission("periods") && {
+          key: "/periods",
+          icon: <FileTextOutlined />,
+          label: "Períodos",
+        },
+        hasPermission("classes") && {
+          key: "/classes",
+          icon: <ScheduleOutlined />,
+          label: "Turmas",
+        },
+        hasPermission("teachers") && {
+          key: "/teachers",
+          icon: <TeamOutlined />,
+          label: "Professores",
+        },
+      ].filter(Boolean),
     },
     hasPermission("grades") && {
       key: "/grades",
@@ -73,24 +102,6 @@ const MainSidebar = ({ collapsed, setCollapsed }) => {
       key: "/settings",
       icon: <SettingOutlined />,
       label: "Configurações",
-      children: [
-        {
-          key: "/settings/courses",
-          label: "Cursos",
-        },
-        {
-          key: "/settings/curriculum",
-          label: "Currículos",
-        },
-        {
-          key: "/settings/periods",
-          label: "Períodos",
-        },
-        {
-          key: "/settings/general",
-          label: "Geral",
-        },
-      ],
     },
   ].filter(Boolean); // Remove itens null/undefined
 

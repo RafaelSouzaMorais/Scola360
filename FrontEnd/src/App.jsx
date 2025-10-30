@@ -9,6 +9,11 @@ import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import { usePermissions } from "./hooks/usePermissions";
 import "./App.css";
 import Disciplinas from "./pages/Disciplinas/Disciplina";
+import Cursos from "./pages/Cursos/Curso";
+import Curriculo from "./pages/Curriculos/Curriculo";
+import Periodos from "./pages/Periodos/Periodo";
+import Professores from "./pages/Professores/Professor";
+import Turmas from "./pages/Turmas/Turma";
 
 // Componente de rota protegida
 const ProtectedRoute = ({ children }) => {
@@ -68,7 +73,7 @@ const AppRoutes = () => {
           path="teachers"
           element={
             <RoleProtectedRoute allowedRoles={routePermissions.teachers}>
-              <div>Página de Professores (em breve)</div>
+              <Professores />
             </RoleProtectedRoute>
           }
         />
@@ -78,7 +83,7 @@ const AppRoutes = () => {
           path="classes"
           element={
             <RoleProtectedRoute allowedRoles={routePermissions.classes}>
-              <div>Página de Turmas (em breve)</div>
+              <Turmas />
             </RoleProtectedRoute>
           }
         />
@@ -89,6 +94,36 @@ const AppRoutes = () => {
           element={
             <RoleProtectedRoute allowedRoles={routePermissions.subjects}>
               <Disciplinas />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Cursos */}
+        <Route
+          path="courses"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.courses}>
+              <Cursos />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Currículos */}
+        <Route
+          path="curriculum"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.curriculum}>
+              <Curriculo />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Períodos */}
+        <Route
+          path="periods"
+          element={
+            <RoleProtectedRoute allowedRoles={routePermissions.periods}>
+              <Periodos />
             </RoleProtectedRoute>
           }
         />

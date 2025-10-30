@@ -16,6 +16,9 @@ export const usePermissions = () => {
     teachers: ["admin", "secretary"], // Apenas admin e secretary podem gerenciar professores
     classes: ["admin", "secretary", "teacher"],
     subjects: ["admin", "teacher"],
+    courses: ["admin", "secretary"],
+    curriculum: ["admin", "secretary"],
+    periods: ["admin", "secretary"],
     grades: ["admin", "teacher"],
     financial: ["admin", "financial"],
     reports: ["admin", "secretary", "financial"],
