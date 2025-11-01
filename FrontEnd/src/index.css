@@ -1,8 +1,8 @@
 :root {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,4 +18,45 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* Estados de linhas reutilizáveis no sistema */
+:root {
+  --row-new-bg: #f6ffed; /* verde claro */
+  --row-edited-bg: #fffbe6; /* amarelo claro */
+}
+
+.row-new {
+  background-color: var(--row-new-bg) !important;
+}
+
+.row-edited {
+  background-color: var(--row-edited-bg) !important;
+}
+
+/* Para garantir que as células da tabela herdem o fundo da linha no Ant Design */
+.row-new .ant-table-cell,
+.row-edited .ant-table-cell {
+  background-color: inherit !important;
+}
+
+/* Legenda reutilizável */
+.legend-status {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0 16px;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
