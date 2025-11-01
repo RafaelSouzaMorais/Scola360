@@ -74,11 +74,18 @@ builder.Services.AddScoped<ICursoService, CursoService>();
 builder.Services.AddScoped<IPeriodoRepository, PeriodoRepository>();
 builder.Services.AddScoped<IPeriodoService, PeriodoService>();
 
+// Curriculo + GradeCurricular DI
+builder.Services.AddScoped<ICurriculoRepository, CurriculoRepository>();
+builder.Services.AddScoped<IGradeCurricularRepository, GradeCurricularRepository>();
+builder.Services.AddScoped<ICurriculoService, CurriculoService>();
+builder.Services.AddScoped<IGradeCurricularService, GradeCurricularService>();
+
 builder.Services.AddAutoMapper(typeof(AlunoProfile).Assembly,
                                typeof(PessoaProfile).Assembly,
                                typeof(DisciplinaProfile).Assembly,
                                typeof(CursoProfile).Assembly,
-                               typeof(PeriodoProfile).Assembly);
+                               typeof(PeriodoProfile).Assembly,
+                               typeof(CurriculoProfile).Assembly);
 
 // Configure JWT Auth
 var jwtKey = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key") ?? "dev-secret-change-me-32-bytes-minimum";
