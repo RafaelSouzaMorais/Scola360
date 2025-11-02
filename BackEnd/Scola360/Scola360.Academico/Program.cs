@@ -27,26 +27,35 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// CORS: permitir o front em http://localhost:5173
+var configuration = builder.Configuration;
+
+// CORS: origens configuráveis via env Cors__Origins (separadas por vírgula) ou appsettings Cors:Origins
+var corsOrigins = Environment.GetEnvironmentVariable("Cors__Origins")
+                 ?? configuration["Cors:Origins"]
+                 ?? "http://localhost:5173";
+var allowedOrigins = corsOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", p =>
-        p.WithOrigins("http://localhost:5173")
+        p.WithOrigins(allowedOrigins)
          .AllowAnyHeader()
          .AllowAnyMethod()
          .AllowCredentials());
 });
 
-var configuration = builder.Configuration;
-
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Prefer Postgres connection string from appsettings or env (.env supported via DotNetEnv)
-    var cs = configuration.GetConnectionString("Default")
-             ?? configuration.GetConnectionString("DefaultConnection")
-             ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default")
+    var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    var defaultHost = inContainer ? "host.docker.internal" : "localhost";
+
+    // Prioriza variáveis de ambiente; depois appsettings; por fim fallback
+    var cs = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
              ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-             ?? "Host=localhost;Port=5432;Database=SistemaAcademicoDb;Username=postgres;Password=postgres";
+             ?? configuration.GetConnectionString("Default")
+             ?? configuration.GetConnectionString("DefaultConnection")
+             ?? $"Host={defaultHost};Port=5432;Database=SistemaAcademicoDb;Username=postgres;Password=postgres";
+
     options.UseNpgsql(cs);
 });
 

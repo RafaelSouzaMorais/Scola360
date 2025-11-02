@@ -28,6 +28,20 @@ namespace Scola360.Academico.Controllers
             }
         }
 
+        [HttpGet("curso/{cursoId:guid}")]
+        public async Task<IActionResult> GetByCursoId([FromRoute] Guid cursoId, CancellationToken ct)
+        {
+            try
+            {
+                var items = await curriculoService.GetCurriculosByCursoIdAsync(cursoId, ct);
+                return Ok(items);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
         {

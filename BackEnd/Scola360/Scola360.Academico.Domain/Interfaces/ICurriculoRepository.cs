@@ -6,6 +6,7 @@ namespace Scola360.Academico.Domain.Interfaces
     {
         Task<Curriculo?> GetByIdAsync(Guid id, CancellationToken ct);
         Task<IEnumerable<Curriculo>> GetAllAsync(CancellationToken ct);
+        Task<IEnumerable<Curriculo>> GetByCursoIdAsync(Guid cursoId, CancellationToken ct);
         Task<Curriculo> AddAsync(Curriculo curriculo, CancellationToken ct);
         Task<Curriculo> UpdateAsync(Curriculo curriculo, CancellationToken ct);
         Task<bool> DeleteAsync(Guid id, CancellationToken ct);

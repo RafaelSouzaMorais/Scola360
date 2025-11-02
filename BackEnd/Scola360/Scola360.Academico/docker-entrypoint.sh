@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 set -e
 
-# Apply migrations using EF Core bundle if present
 if [ -x "/app/migrate" ]; then
   echo "==> Executando migrations..."
   if [ -n "$ConnectionStrings__Default" ]; then
@@ -9,7 +8,7 @@ if [ -x "/app/migrate" ]; then
   else
     /app/migrate
   fi
-  echo "==> Migrations concluídas."
+  echo "==> Migrations concluidas."
 fi
 
 echo "==> Iniciando API..."

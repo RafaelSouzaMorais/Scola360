@@ -29,6 +29,14 @@ namespace Scola360.Academico.Infrastructure.Repositories
             return await db.Set<Curriculo>().AsNoTracking().ToListAsync(ct);
         }
 
+        public async Task<IEnumerable<Curriculo>> GetByCursoIdAsync(Guid cursoId, CancellationToken ct)
+        {
+            return await db.Set<Curriculo>()
+                           .AsNoTracking()
+                           .Where(c => c.CursoId == cursoId)
+                           .ToListAsync(ct);
+        }
+
         public async Task<Curriculo?> GetByIdAsync(Guid id, CancellationToken ct)
         {
             return await db.Set<Curriculo>().AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, ct);

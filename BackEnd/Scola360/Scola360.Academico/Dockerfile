@@ -39,6 +39,10 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=efbundle /app/migrate /app/migrate
 COPY Scola360.Academico/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+RUN apt-get update && apt-get install -y dos2unix \
+ && dos2unix /app/docker-entrypoint.sh \
+ && chmod +x /app/docker-entrypoint.sh \
+ && apt-get remove -y dos2unix \
+ && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

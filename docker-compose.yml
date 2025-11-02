@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Scola360.Academico/Dockerfile
+      dockerfile: BackEnd/Scola360/Scola360.Academico/Dockerfile
     container_name: sistemaacademico-api
     environment:
       DOTNET_RUNNING_IN_CONTAINER: "true"

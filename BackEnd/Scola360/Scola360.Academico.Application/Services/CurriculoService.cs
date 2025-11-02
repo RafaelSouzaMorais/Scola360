@@ -40,6 +40,13 @@ namespace Scola360.Academico.Application.Services
             return mapper.Map<CurriculoReadDto>(entity);
         }
 
+        public async Task<IEnumerable<CurriculoReadDto>> GetCurriculosByCursoIdAsync(Guid cursoId, CancellationToken ct = default)
+        {
+            if (cursoId == Guid.Empty) throw new ArgumentException("CursoId inválido");
+            var list = await repo.GetByCursoIdAsync(cursoId, ct);
+            return list.Select(mapper.Map<CurriculoReadDto>);
+        }
+
         public async Task<CurriculoReadDto> UpdateCurriculoAsync(CurriculoUpdateDto dto, CancellationToken ct = default)
         {
             if (dto.Id == Guid.Empty) throw new ArgumentException("Id inválido");
