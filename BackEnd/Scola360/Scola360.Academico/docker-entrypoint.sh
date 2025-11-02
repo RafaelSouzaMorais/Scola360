@@ -1,65 +1,65 @@
-#!/usr/bin/env sh
+#!/bin/sh
 set -e
 
 normalize_cs() {
   input="$1"
+
+  # URLs postgres:// ou postgresql://
   case "$input" in
     postgres://*|postgresql://*)
       uri="${input#*://}"
-      creds="${uri%@*}"
+      creds="${uri%%@*}"
       rest="${uri#*@}"
+
       user="${creds%%:*}"
       pass="${creds#*:}"
       [ "$pass" = "$creds" ] && pass=""
+
       hostport="${rest%%/*}"
       dbq="${rest#*/}"
-      db="${dbq%%\?*}"
-      query="${dbq#*\?}"
-      [ "$query" = "$dbq" ] && query=""
-      host="${hostport%%:*}"
-      port="${hostport#*:}"
-      [ "$port" = "$hostport" ] && port="5432"
+
+      # db e query sem usar padrões com '?'
+      db=$(printf "%s" "$dbq" | cut -d'?' -f1)
+      query=$(printf "%s" "$dbq" | cut -s -d'?' -f2)
+
+      host=$(printf "%s" "$hostport" | cut -d':' -f1)
+      port=$(printf "%s" "$hostport" | cut -s -d':' -f2)
+      [ -z "$port" ] && port="5432"
+
       cs="Host=$host;Port=$port;Database=$db;Username=$user"
       [ -n "$pass" ] && cs="$cs;Password=$pass"
-      # sslmode
+
       if [ -n "$query" ]; then
-        OLD_IFS="$IFS"
-        IFS='&'
-        for kv in $query; do
-          key="${kv%%=*}"; val="${kv#*=}"
-          if [ "$key" = "sslmode" ]; then
-            cs="$cs;Ssl Mode=$val"
-          fi
-        done
-        IFS="$OLD_IFS"
+        # extrai sslmode=valor, se existir
+        sslmode=$(printf "%s" "$query" | tr '&' '\n' | awk -F '=' '$1=="sslmode"{print $2; exit}')
+        [ -n "$sslmode" ] && cs="$cs;Ssl Mode=$sslmode"
       fi
+
       printf "%s" "$cs"
       return 0
       ;;
   esac
 
+  # Corrige Host=tcp://host:port
+  echo "$input" | grep -qi "Host=tcp://" && {
+    hostport=$(printf "%s" "$input" | sed -n 's/.*Host=tcp:\/\/\([^;]*\).*/\1/p')
+    host=$(printf "%s" "$hostport" | cut -d':' -f1)
+    port=$(printf "%s" "$hostport" | cut -s -d':' -f2)
+    out=$(printf "%s" "$input" | sed "s/Host=tcp:\/\/$hostport/Host=$host/i")
+    echo "$out" | grep -qi ";[[:space:]]*Port=" || {
+      [ -n "$port" ] && out="$out;Port=$port"
+    }
+    printf "%s" "$out"
+    return 0
+  }
+
+  # Caso seja uma URL tcp://host:port inteira
   case "$input" in
-    *Host=tcp://*)
-      hostport=$(printf "%s" "$input" | sed -n 's/.*Host=tcp:\/\/\([^;]*\).*/\1/p')
-      host="$hostport"; port=""
-      case "$hostport" in
-        *:*
-          host="${hostport%:*}"
-          port="${hostport##*:}"
-          ;;
-      esac
-      out=$(printf "%s" "$input" | sed "s/Host=tcp:\/\/$hostport/Host=$host/i")
-      if ! printf "%s" "$out" | grep -qi ";[[:space:]]*Port="; then
-        [ -n "$port" ] && out="$out;Port=$port"
-      fi
-      printf "%s" "$out"
-      return 0
-      ;;
     tcp://*)
       uri="${input#*://}"
-      host="${uri%%:*}"
-      rest="${uri#*:}"
-      port="${rest%%/*}"
+      host=$(printf "%s" "$uri" | cut -d':' -f1)
+      port=$(printf "%s" "$uri" | cut -s -d':' -f2 | cut -d'/' -f1)
+      [ -z "$port" ] && port="5432"
       db="${POSTGRES_DB:-SistemaAcademicoDb}"
       user="${POSTGRES_USER:-postgres}"
       pass="${POSTGRES_PASSWORD:-postgres}"
