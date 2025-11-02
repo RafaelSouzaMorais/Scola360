@@ -6,14 +6,20 @@ services:
     container_name: sistemaacademico-api
     environment:
       DOTNET_RUNNING_IN_CONTAINER: "true"
-      ConnectionStrings__Default: "Host=host.docker.internal;Port=5432;Database=SistemaAcademicoDb;Username=postgres;Password=postgres"
-      Cors__Origins: "http://localhost:5173"
-      Jwt__Issuer: "SistemaAcademico"
-      Jwt__Audience: "SistemaAcademicoAudience"
-      Jwt__Key: "x7GQkP3mT1a9Wf6uR2y8Nq4Lz5Hc7Vd1Jk3Sg9Bv2Xy6Mp4Tr8Za0Lc2Qw6Ef9HZ"
-      Jwt__DurationMinutes: "60"
+
+      # Connection string do PostgreSQL gerenciado pelo Coolify
+      ConnectionStrings__Default: "${CONN_STRING}"
+
+      # CORS
+      Cors__Origins: "${CORS_ORIGINS}"
+
+      # JWT
+      Jwt__Issuer: "${JWT_ISSUER}"
+      Jwt__Audience: "${JWT_AUDIENCE}"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__DurationMinutes: "${JWT_DURATION}"
+
     ports:
       - "8080:5111"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
     restart: unless-stopped
