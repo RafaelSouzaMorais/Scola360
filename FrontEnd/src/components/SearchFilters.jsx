@@ -1,19 +1,16 @@
 import React from "react";
 import { Row, Col, Button, Space } from "antd";
-import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import "./SearchFilters.css";
 
 const SearchFilters = ({
   children,
   onSearch,
   onClear,
-  onReset,
   searchText = "Buscar",
   clearText = "Limpar",
-  resetText = "Resetar",
   showSearchButton = true,
   showClearButton = true,
-  showResetButton = false,
   loading = false,
   className = "",
   gutter = [16, 8],
@@ -28,12 +25,6 @@ const SearchFilters = ({
   const handleClear = () => {
     if (onClear) {
       onClear();
-    }
-  };
-
-  const handleReset = () => {
-    if (onReset) {
-      onReset();
     }
   };
 
@@ -65,16 +56,6 @@ const SearchFilters = ({
             {showClearButton && (
               <Button onClick={handleClear} className="clear-button">
                 {clearText}
-              </Button>
-            )}
-
-            {showResetButton && (
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={handleReset}
-                className="reset-button"
-              >
-                {resetText}
               </Button>
             )}
           </Space>

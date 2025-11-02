@@ -85,12 +85,6 @@ export default function ListaAlunos() {
     setFiltroStatus(null);
   };
 
-  const handleResetFilters = () => {
-    setFiltroNome("");
-    setFiltroStatus(null);
-    fetchAlunos(); // Recarrega os dados
-  };
-
   // Filtro de alunos
   const alunosFiltrados = alunos.filter((aluno) => {
     const nomeMatch = aluno.nomeCompleto
@@ -343,8 +337,6 @@ export default function ListaAlunos() {
       <SearchFilters
         onSearch={handleSearch}
         onClear={handleClearFilters}
-        onReset={handleResetFilters}
-        showResetButton={true}
         loading={loading}
       >
         <Input

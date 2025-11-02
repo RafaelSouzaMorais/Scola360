@@ -70,11 +70,6 @@ export default function Periodos() {
     setFiltroNome("");
     setFiltroAno("");
   };
-  const handleResetFilters = () => {
-    setFiltroNome("");
-    setFiltroAno("");
-    fetchPeriodos();
-  };
 
   // CRUD
   const handleNovoPeriodo = () => {
@@ -234,8 +229,6 @@ export default function Periodos() {
       <SearchFilters
         onSearch={handleSearch}
         onClear={handleClearFilters}
-        onReset={handleResetFilters}
-        showResetButton={true}
         loading={loading}
       >
         <Input

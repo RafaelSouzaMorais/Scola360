@@ -49,10 +49,6 @@ export default function Cursos() {
   const handleClearFilters = () => {
     setFiltroNome("");
   };
-  const handleResetFilters = () => {
-    setFiltroNome("");
-    fetchCursos();
-  };
 
   // CRUD
   const handleNovoCurso = () => {
@@ -174,8 +170,6 @@ export default function Cursos() {
       <SearchFilters
         onSearch={handleSearch}
         onClear={handleClearFilters}
-        onReset={handleResetFilters}
-        showResetButton={true}
         loading={loading}
       >
         <Input

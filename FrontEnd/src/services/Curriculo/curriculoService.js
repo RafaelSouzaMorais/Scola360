@@ -5,6 +5,11 @@ export async function listarCurriculos() {
   return data;
 }
 
+export async function listarCurriculosPorCurso(cursoId) {
+  const { data } = await api.get(`/api/curriculos/curso/${cursoId}`);
+  return data;
+}
+
 export async function buscarCurriculoPorId(id) {
   const { data } = await api.get(`/api/curriculos/${id}`);
   return data;

@@ -18,6 +18,7 @@ import FormModal from "../../components/FormModal";
 import RowStatusLegend from "../../components/RowStatusLegend";
 import {
   listarCurriculos,
+  listarCurriculosPorCurso,
   buscarCurriculoPorId,
   criarCurriculo,
   atualizarCurriculo,
@@ -34,6 +35,7 @@ export default function Curriculo() {
   const [curriculos, setCurriculos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filtroNome, setFiltroNome] = useState("");
+  const [filtroCursoId, setFiltroCursoId] = useState(null);
 
   // Detalhes - grade dentro do modal
   const [disciplinas, setDisciplinas] = useState([]);
@@ -54,6 +56,23 @@ export default function Curriculo() {
       setCurriculos(Array.isArray(data) ? data : []);
     } catch (err) {
       message.error("Erro ao carregar currículos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBuscar = async () => {
+    setLoading(true);
+    try {
+      let data;
+      if (filtroCursoId) {
+        data = await listarCurriculosPorCurso(filtroCursoId);
+      } else {
+        data = await listarCurriculos();
+      }
+      setCurriculos(Array.isArray(data) ? data : []);
+    } catch (err) {
+      message.error("Erro ao buscar currículos");
     } finally {
       setLoading(false);
     }
@@ -138,34 +157,6 @@ export default function Curriculo() {
     }
 
     setModalOpen(true);
-  };
-
-  const carregarDetalhes = async (id) => {
-    try {
-      const data = await buscarCurriculoPorId(id);
-      setEditingId(id);
-      form.setFieldsValue({ nome: data.nome || "" });
-      try {
-        const gradeData = await listarGrade(id);
-        const linhas = (Array.isArray(gradeData) ? gradeData : []).map((g) => ({
-          id: g.id,
-          disciplinaId: g.disciplinaId || g.idDisciplina || g.disciplina?.id,
-          isNew: false,
-          isEdited: false,
-        }));
-        setGrade(linhas);
-      } catch (_) {
-        const linhas = (data.grade || data.disciplinas || []).map((g) => ({
-          id: g.id,
-          disciplinaId: g.disciplinaId || g.idDisciplina || g.disciplina?.id,
-          isNew: false,
-          isEdited: false,
-        }));
-        setGrade(linhas);
-      }
-    } catch (err) {
-      message.error("Erro ao carregar currículo");
-    }
   };
 
   const addLinha = () => {
@@ -346,21 +337,40 @@ export default function Curriculo() {
       />
 
       <SearchFilters
-        onSearch={() => {}}
-        onClear={() => setFiltroNome("")}
-        onReset={() => {
+        onSearch={handleBuscar}
+        onClear={() => {
           setFiltroNome("");
-          fetchCurriculos();
+          setFiltroCursoId(null);
         }}
-        showResetButton
         loading={loading}
       >
-        <Input
-          placeholder="Pesquisar por nome"
-          value={filtroNome}
-          onChange={(e) => setFiltroNome(e.target.value)}
-          allowClear
-        />
+        <Row gutter={[8, 8]}>
+          <Col xs={24} sm={12}>
+            <Select
+              showSearch
+              placeholder="Filtrar por curso"
+              options={cursos}
+              value={filtroCursoId}
+              onChange={(v) => setFiltroCursoId(v)}
+              style={{ width: "100%" }}
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              allowClear
+            />
+          </Col>
+          <Col xs={24} sm={12}>
+            <Input
+              placeholder="Pesquisar por nome"
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
+              allowClear
+            />
+          </Col>
+        </Row>
       </SearchFilters>
 
       <Row gutter={[16, 16]}>

@@ -80,12 +80,6 @@ export default function Disciplinas() {
     setFiltroCodigo("");
   };
 
-  const handleResetFilters = () => {
-    setFiltroNome("");
-    setFiltroCodigo("");
-    fetchDisciplinas();
-  };
-
   const handleNovaDisciplina = () => {
     setModalMode("create");
     setEditingId(null);
@@ -125,7 +119,7 @@ export default function Disciplinas() {
           message.success("Disciplina criada com sucesso!");
           fetchDisciplinas();
           handleCloseModal(); // Recarrega a lista
-        }else{
+        } else {
           message.error("Erro ao criar disciplina");
           console.error("Erro:", error);
         }
@@ -141,13 +135,11 @@ export default function Disciplinas() {
               : disciplina
           );
           setDisciplinas(updatedDisciplinas);
-        }else{
+        } else {
           message.error("Erro ao atualizar disciplina");
           console.error("Erro:", error);
         }
       }
-
-      
     } catch (error) {
       if (error?.errorFields) {
         return; // Erro de validação do form
@@ -261,8 +253,6 @@ export default function Disciplinas() {
       <SearchFilters
         onSearch={handleSearch}
         onClear={handleClearFilters}
-        onReset={handleResetFilters}
-        showResetButton={true}
         loading={loading}
       >
         <Input
