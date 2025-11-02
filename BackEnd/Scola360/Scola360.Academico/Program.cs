@@ -14,6 +14,7 @@ using AutoMapper;
 using Scola360.Academico.Application.Profiles;
 using DotNetEnv;
 using System.Text.RegularExpressions;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -187,204 +188,82 @@ app.Run();
 // ---- helpers ----
 static string BuildNpgsqlConnectionString(IConfiguration configuration)
 {
-    // 1) Prioriza variáveis de ambiente e appsettings comuns em PaaS
-    string? raw =
-        Environment.GetEnvironmentVariable("ConnectionStrings__Default") ??
-        Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") ??
-        Environment.GetEnvironmentVariable("DATABASE_URL") ??
-        Environment.GetEnvironmentVariable("POSTGRES_URL") ??
-        Environment.GetEnvironmentVariable("POSTGRESQL_URL") ??
-        configuration.GetConnectionString("Default") ??
-        configuration.GetConnectionString("DefaultConnection");
+    // 1. Tenta obter uma URL de conexão completa (padrão em muitas PaaS)
+    var connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ??
+                        Environment.GetEnvironmentVariable("POSTGRES_URL") ??
+                        Environment.GetEnvironmentVariable("POSTGRESQL_URL");
 
-    // Normaliza se vier com tcp:// em Host/Server
-    if (!string.IsNullOrWhiteSpace(raw))
+    if (Uri.TryCreate(connectionUrl, UriKind.Absolute, out var uri))
     {
-        // Se for URL postgres://, converte
-        if (TryFromPostgresUrl(raw, out var csFromUrl))
-            return csFromUrl!;
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var cs = new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.IsDefaultPort ? 5432 : uri.Port,
+            Username = userInfo[0],
+            Password = userInfo.Length > 1 ? userInfo[1] : string.Empty,
+            Database = uri.AbsolutePath.Trim('/'),
+        };
 
-        // Se for conexão já no formato k=v;*, normaliza Host/Server tcp:// e tcp:
-        raw = NormalizeTcpInHostOrServer(raw);
-        return raw;
+        // Adiciona SslMode se estiver na query string da URL
+        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        if (queryParams.AllKeys.Contains("sslmode", StringComparer.OrdinalIgnoreCase))
+        {
+            var sslMode = queryParams["sslmode"];
+            if (Enum.TryParse<SslMode>(sslMode, ignoreCase: true, out var mode))
+            {
+                cs.SslMode = mode;
+            }
+        }
+        return cs.ToString();
     }
 
-    // 2) Fallback a variáveis individuais (inclusive padrão PG*)
+    // 2. Se não for URL, tenta obter a string de conexão padrão (appsettings ou env)
+    var connectionString = configuration.GetConnectionString("Default") ??
+                           configuration.GetConnectionString("DefaultConnection");
+
+    if (!string.IsNullOrWhiteSpace(connectionString))
+    {
+        return NormalizeConnectionString(connectionString);
+    }
+
+    // 3. Fallback para variáveis de ambiente individuais (padrão Docker/PG)
     var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-    var defaultHost = inContainer ? "host.docker.internal" : "localhost";
+    var csBuilder = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? Environment.GetEnvironmentVariable("PGHOST") ?? (inContainer ? "host.docker.internal" : "localhost"),
+        Port = int.TryParse(Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? Environment.GetEnvironmentVariable("PGPORT"), out var port) ? port : 5432,
+        Database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? Environment.GetEnvironmentVariable("PGDATABASE") ?? "SistemaAcademicoDb",
+        Username = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? Environment.GetEnvironmentVariable("PGUSER") ?? "postgres",
+        Password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? Environment.GetEnvironmentVariable("PGPASSWORD") ?? "postgres"
+    };
 
-    var envHost = Environment.GetEnvironmentVariable("POSTGRES_HOST")
-                 ?? Environment.GetEnvironmentVariable("PGHOST")
-                 ?? defaultHost;
-
-    var envPort = Environment.GetEnvironmentVariable("POSTGRES_PORT")
-                 ?? Environment.GetEnvironmentVariable("PGPORT")
-                 ?? "5432";
-
-    var envDb = Environment.GetEnvironmentVariable("POSTGRES_DB")
-               ?? Environment.GetEnvironmentVariable("PGDATABASE")
-               ?? "SistemaAcademicoDb";
-
-    var envUser = Environment.GetEnvironmentVariable("POSTGRES_USER")
-                 ?? Environment.GetEnvironmentVariable("PGUSER")
-                 ?? "postgres";
-
-    var envPwd = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")
-                ?? Environment.GetEnvironmentVariable("PGPASSWORD")
-                ?? "postgres";
-
-    // Se host vier como tcp://host:port ou host:port, separar
-    ParseHostPort(envHost, envPort, out var host, out var port);
-    Console.WriteLine($"Using Postgres host={host} port={port} database={envDb} user={envUser}");
-    var cs = $"Host={host};Port={port};Database={envDb};Username={envUser};Password={envPwd}";
-    // Protege contra algum host montado como tcp:// novamente
-    cs = NormalizeTcpInHostOrServer(cs);
-    return cs;
+    return NormalizeConnectionString(csBuilder.ToString());
 }
 
-static void ParseHostPort(string hostInput, string portInput, out string host, out string port)
+static string NormalizeConnectionString(string connectionString)
 {
-    host = hostInput?.Trim() ?? string.Empty;
-    port = portInput?.Trim() ?? string.Empty;
-
-    if (host.StartsWith("tcp://", StringComparison.OrdinalIgnoreCase) || host.Contains("://"))
+    try
     {
-        if (Uri.TryCreate(host, UriKind.Absolute, out var uri))
+        var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+
+        // Corrige o problema do "tcp://" que algumas plataformas injetam
+        if (builder.Host != null && builder.Host.StartsWith("tcp://", StringComparison.OrdinalIgnoreCase))
         {
-            host = uri.Host;
-            port = (uri.IsDefaultPort ? (string.IsNullOrEmpty(port) ? "5432" : port) : uri.Port.ToString());
-            return;
-        }
-    }
-
-    // host:port
-    var idx = host.LastIndexOf(':');
-    if (idx > -1 && idx == host.IndexOf(':'))
-    {
-        var h = host[..idx];
-        var p = host[(idx + 1)..];
-        if (int.TryParse(p, out _))
-        {
-            host = h;
-            if (string.IsNullOrEmpty(port)) port = p;
-        }
-    }
-
-    if (string.IsNullOrEmpty(port)) port = "5432";
-}
-
-static bool TryFromPostgresUrl(string value, out string? connectionString)
-{
-    connectionString = null;
-    if (value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
-        value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
-    {
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
-            return false;
-
-        var host = uri.Host;
-        var port = uri.IsDefaultPort ? 5432 : uri.Port;
-        var db = Uri.UnescapeDataString(uri.AbsolutePath.Trim('/'));
-
-        var user = string.Empty;
-        var pass = string.Empty;
-        if (!string.IsNullOrEmpty(uri.UserInfo))
-        {
-            var parts = uri.UserInfo.Split(':', 2);
-            user = Uri.UnescapeDataString(parts[0]);
-            if (parts.Length > 1)
-                pass = Uri.UnescapeDataString(parts[1]);
-        }
-
-        // Trata sslmode da querystring se existir
-        var sslMode = ExtractQuery(uri.Query, "sslmode");
-        var sslPart = string.IsNullOrEmpty(sslMode) ? string.Empty : $";Ssl Mode={sslMode}";
-
-        connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={pass}{sslPart}";
-        return true;
-    }
-
-    return false;
-}
-
-static string NormalizeTcpInHostOrServer(string value)
-{
-    // Normaliza Host=tcp://... e Server=tcp://... e também tcp: sem barras
-    foreach (var key in new[] { "Host", "Server", "Data Source" })
-    {
-        // tcp://host:port
-        var pattern1 = $@"{Regex.Escape(key)}\s*=\s*tcp://([^;]+)";
-        var match = Regex.Match(value, pattern1, RegexOptions.IgnoreCase);
-        if (match.Success)
-        {
-            var hostPort = match.Groups[1].Value;
-            SplitHostPort(hostPort, out var host, out var port);
-
-            var replaced = Regex.Replace(value, pattern1, $"{key}={host}", RegexOptions.IgnoreCase);
-            if (!string.IsNullOrEmpty(port) && !Regex.IsMatch(replaced, @";\s*Port\s*=", RegexOptions.IgnoreCase))
+            var host = builder.Host["tcp://".Length..];
+            var parts = host.Split(':', 2);
+            builder.Host = parts[0];
+            if (parts.Length > 1 && int.TryParse(parts[1], out var port))
             {
-                replaced = Regex.Replace(replaced, $@"{Regex.Escape(key)}\s*=[^;]+", m => m.Value + $";Port={port}", RegexOptions.IgnoreCase);
+                builder.Port = port;
             }
-            value = replaced;
         }
-
-        // tcp:host:port (ou tcp:host,port)
-        var pattern2 = $@"{Regex.Escape(key)}\s*=\s*tcp:([^;]+)";
-        match = Regex.Match(value, pattern2, RegexOptions.IgnoreCase);
-        if (match.Success)
-        {
-            var hostPort = match.Groups[1].Value;
-            // aceita host:port ou host,port
-            hostPort = hostPort.Replace(',', ':');
-            SplitHostPort(hostPort, out var host, out var port);
-
-            var replaced = Regex.Replace(value, pattern2, $"{key}={host}", RegexOptions.IgnoreCase);
-            if (!string.IsNullOrEmpty(port) && !Regex.IsMatch(replaced, @";\s*Port\s*=", RegexOptions.IgnoreCase))
-            {
-                replaced = Regex.Replace(replaced, $@"{Regex.Escape(key)}\s*=[^;]+", m => m.Value + $";Port={port}", RegexOptions.IgnoreCase);
-            }
-            value = replaced;
-        }
+        return builder.ToString();
     }
-
-    // Caso a string inteira seja tcp://host:port, tentar compor com variáveis padrão
-    if (value.StartsWith("tcp://", StringComparison.OrdinalIgnoreCase))
+    catch
     {
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
-        {
-            var host = uri.Host;
-            var port = uri.IsDefaultPort ? 5432 : uri.Port;
-            var db = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? Environment.GetEnvironmentVariable("PGDATABASE") ?? "SistemaAcademicoDb";
-            var user = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? Environment.GetEnvironmentVariable("PGUSER") ?? "postgres";
-            var pwd = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? Environment.GetEnvironmentVariable("PGPASSWORD") ?? "postgres";
-            return $"Host={host};Port={port};Database={db};Username={user};Password={pwd}";
-        }
+        // Se o NpgsqlConnectionStringBuilder falhar, retorna a string original
+        // A lógica anterior de Regex pode ser adicionada aqui como um fallback mais robusto se necessário
+        return connectionString;
     }
-
-    return value;
-}
-
-static void SplitHostPort(string hostPort, out string host, out string? port)
-{
-    host = hostPort;
-    port = null;
-    var idx = hostPort.LastIndexOf(':');
-    if (idx > -1)
-    {
-        host = hostPort[..idx];
-        port = hostPort[(idx + 1)..];
-    }
-}
-
-static string? ExtractQuery(string query, string key)
-{
-    if (string.IsNullOrEmpty(query)) return null;
-    var q = query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    foreach (var kv in q)
-    {
-        var parts = kv.Split('=', 2);
-        if (parts.Length == 2 && parts[0].Equals(key, StringComparison.OrdinalIgnoreCase))
-            return Uri.UnescapeDataString(parts[1]);
-    }
-    return null;
 }
