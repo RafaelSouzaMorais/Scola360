@@ -189,7 +189,7 @@ app.Run();
 static string BuildNpgsqlConnectionString(IConfiguration configuration)
 {
     // 1. Tenta obter uma URL de conexão completa (padrão em muitas PaaS)
-    var connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ??
+    var connectionUrl = Environment.GetEnvironmentVariable("CONN_STRING") ??
                         Environment.GetEnvironmentVariable("POSTGRES_URL") ??
                         Environment.GetEnvironmentVariable("POSTGRESQL_URL");
 
@@ -204,7 +204,7 @@ static string BuildNpgsqlConnectionString(IConfiguration configuration)
             Password = userInfo.Length > 1 ? userInfo[1] : string.Empty,
             Database = uri.AbsolutePath.Trim('/'),
         };
-
+        Console.WriteLine(cs);
         // Adiciona SslMode se estiver na query string da URL
         var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
         if (queryParams.AllKeys.Contains("sslmode", StringComparer.OrdinalIgnoreCase))
