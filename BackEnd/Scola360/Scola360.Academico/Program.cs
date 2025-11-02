@@ -12,8 +12,14 @@ using Scola360.Academico.Domain.Entities;
 using System.Security.Cryptography;
 using AutoMapper;
 using Scola360.Academico.Application.Profiles;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+try { Env.Load(); } catch { }
+
+// // Permite comportamento legado de timestamp para que DateTime com Kind=Unspe
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 
@@ -35,12 +41,13 @@ var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Prefer the connection string from appsettings.json key "DefaultConnection"
-    var cs = configuration.GetConnectionString("DefaultConnection")
-             ?? configuration.GetConnectionString("Default")
+    // Prefer Postgres connection string from appsettings or env (.env supported via DotNetEnv)
+    var cs = configuration.GetConnectionString("Default")
+             ?? configuration.GetConnectionString("DefaultConnection")
+             ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default")
              ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-             ?? "Server=(localdb)\\mssqllocaldb;Database=SistemaAcademicoDb;Trusted_Connection=True;MultipleActiveResultSets=true";
-    options.UseSqlServer(cs);
+             ?? "Host=localhost;Port=5432;Database=SistemaAcademicoDb;Username=postgres;Password=postgres";
+    options.UseNpgsql(cs);
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();

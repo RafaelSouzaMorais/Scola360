@@ -57,7 +57,7 @@ public class PeriodosController(IPeriodoService service, ILogger<PeriodosControl
         catch (ArgumentException ex)
         {
             logger.LogError(ex, "Erro ao criar período");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new { error = "Erro ao criar período" });
         }
     }
 

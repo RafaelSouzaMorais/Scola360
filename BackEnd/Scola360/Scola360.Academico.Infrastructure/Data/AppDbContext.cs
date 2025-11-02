@@ -32,7 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // User
+        // Usuário
         modelBuilder.Entity<User>(b =>
         {
             b.HasKey(x => x.Id);
@@ -40,12 +40,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.Property(x => x.PasswordHash).IsRequired();
             b.Property(x => x.PasswordSalt).IsRequired();
             b.Property(x => x.Active).HasDefaultValue(true);
-            b.Property(x => x.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            b.Property(x => x.CreatedAt).HasDefaultValueSql("NOW()");
             b.HasIndex(x => x.Username).IsUnique();
             b.ToTable("User");
         });
 
-        // Role
+        // Role (papéis/perfis)
         modelBuilder.Entity<Role>(b =>
         {
             b.HasKey(x => x.Id);
@@ -54,7 +54,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Role");
         });
 
-        // User <-> Role (many-to-many) with composite PK [RolesId, UsersId]
+        // Relação User <-> Role (N:N) com PK composta [RolesId, UsersId]
         modelBuilder.Entity<User>()
             .HasMany(u => u.Roles)
             .WithMany(r => r.Users)
@@ -82,11 +82,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.Property(x => x.Sexo).HasConversion<int>().IsRequired();
             b.Property(x => x.Nacionalidade).HasMaxLength(100);
             b.Property(x => x.Naturalidade).HasMaxLength(100);
+            // Data de nascimento não precisa de fuso horário; mapear para 'date'
+            b.Property(x => x.DataNascimento).HasColumnType("date");
             b.HasIndex(x => x.CPF).IsUnique();
             b.ToTable("Pessoa");
         });
 
-        // Endereco (1:N Pessoa)
+        // Endereço (1:N com Pessoa)
         modelBuilder.Entity<Endereco>(b =>
         {
             b.HasKey(x => x.Id);
@@ -106,7 +108,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Endereco");
         });
 
-        // FotoPessoa (1:1 com Pessoa)
+        // Foto da Pessoa (1:1 com Pessoa)
         modelBuilder.Entity<FotoPessoa>(b =>
         {
             b.HasKey(x => x.Id);
@@ -133,7 +135,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Aluno");
         });
 
-        // ResponsavelAluno (tabela de junção Aluno <-> Pessoa)
+        // Responsável do Aluno (tabela de junção Aluno <-> Pessoa)
         modelBuilder.Entity<ResponsavelAluno>(b =>
         {
             b.HasKey(x => new { x.AlunoId, x.ResponsavelId });
@@ -148,7 +150,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("ResponsavelAluno");
         });
 
-        // Funcionario (composição) + 1:1 User
+        // Funcionário (composição) + relação 1:1 com User
         modelBuilder.Entity<Funcionario>(b =>
         {
             b.HasKey(x => x.Id);
@@ -164,15 +166,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Funcionario");
         });
 
-        // Periodo
+        // Período
         modelBuilder.Entity<Periodo>(b =>
         {
             b.HasKey(x => x.Id);
             b.Property(x => x.Nome).IsRequired().HasMaxLength(100);
+            // Datas do período não precisam de fuso horário; mapear para 'date'
+            b.Property(x => x.DataInicio).HasColumnType("date");
+            b.Property(x => x.DataFim).HasColumnType("date");
             b.ToTable("Periodo");
         });
 
-        // Curso e Curriculo
+        // Curso e Currículo
         modelBuilder.Entity<Curso>(b =>
         {
             b.HasKey(x => x.Id);
@@ -202,7 +207,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Disciplina");
         });
 
-        // GradeCurricular (composite PK CurriculoId + DisciplinaId)
+        // Grade Curricular (PK composta: CurriculoId + DisciplinaId)
         modelBuilder.Entity<GradeCurricular>(b =>
         {
             b.HasKey(x => new { x.CurriculoId, x.DisciplinaId });
@@ -230,7 +235,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Turma");
         });
 
-        // TurmaDisciplina (composite PK TurmaId + DisciplinaId + FuncionarioId)
+        // TurmaDisciplina (PK composta: TurmaId + DisciplinaId + FuncionarioId)
         modelBuilder.Entity<TurmaDisciplina>(b =>
         {
             b.HasKey(x => new { x.TurmaId, x.DisciplinaId, x.FuncionarioId });
@@ -249,10 +254,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("TurmaDisciplina");
         });
 
-        // Matricula
+        // Matrícula
         modelBuilder.Entity<Matricula>(b =>
         {
             b.HasKey(x => x.Id);
+            // Data de matrícula como 'date' (sem fuso horário)
+            b.Property(x => x.DataMatricula).HasColumnType("date");
             b.Property(x => x.DataMatricula).IsRequired();
             b.HasOne(m => m.Aluno)
                 .WithMany()
@@ -280,7 +287,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Unidade");
         });
 
-        // AtividadeAvaliativa
+        // Atividade Avaliativa
         modelBuilder.Entity<AtividadeAvaliativa>(b =>
         {
             b.HasKey(x => x.Id);
@@ -294,7 +301,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("AtividadeAvaliativa");
         });
 
-        // NotaAtividadeAvaliativa
+        // Nota por Atividade Avaliativa
         modelBuilder.Entity<NotaAtividadeAvaliativa>(b =>
         {
             b.HasKey(x => x.Id);
@@ -310,7 +317,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("NotaAtividadeAvaliativa");
         });
 
-        // NotaUnidade
+        // Nota por Unidade
         modelBuilder.Entity<NotaUnidade>(b =>
         {
             b.HasKey(x => x.Id);
@@ -326,7 +333,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("NotaUnidade");
         });
 
-        // HistoricoEscolar
+        // Histórico Escolar
         modelBuilder.Entity<HistoricoEscolar>(b =>
         {
             b.HasKey(x => x.Id);
@@ -343,7 +350,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("HistoricoEscolar");
         });
 
-        // HistoricoDisciplina
+        // Histórico de Disciplina
         modelBuilder.Entity<HistoricoDisciplina>(b =>
         {
             b.HasKey(x => x.Id);

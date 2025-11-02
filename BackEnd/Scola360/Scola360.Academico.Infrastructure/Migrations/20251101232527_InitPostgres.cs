@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Scola360.Academico.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class CriandoBancoAcademico : Migration
+    public partial class InitPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,9 +15,9 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Curso",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Descricao = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,13 +28,13 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Disciplina",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Codigo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CargaHoraria = table.Column<int>(type: "int", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TipoCalculoUnidade = table.Column<int>(type: "int", nullable: false),
-                    TipoCalculoFinal = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Codigo = table.Column<string>(type: "text", nullable: false),
+                    CargaHoraria = table.Column<int>(type: "integer", nullable: false),
+                    Descricao = table.Column<string>(type: "text", nullable: false),
+                    TipoCalculoUnidade = table.Column<int>(type: "integer", nullable: false),
+                    TipoCalculoFinal = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,11 +45,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Periodo",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Ano = table.Column<int>(type: "int", nullable: false),
-                    DataInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DataFim = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Ano = table.Column<int>(type: "integer", nullable: false),
+                    DataInicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataFim = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,17 +60,17 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Pessoa",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NomeCompleto = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CPF = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
-                    DataNascimento = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Telefone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    CorRaca = table.Column<int>(type: "int", nullable: false),
-                    RG = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    Sexo = table.Column<int>(type: "int", nullable: false),
-                    Nacionalidade = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Naturalidade = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    NomeCompleto = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CPF = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    DataNascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Telefone = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    CorRaca = table.Column<int>(type: "integer", nullable: false),
+                    RG = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    Sexo = table.Column<int>(type: "integer", nullable: false),
+                    Nacionalidade = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Naturalidade = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -81,8 +81,8 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Role",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,12 +93,12 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordSalt = table.Column<string>(type: "text", nullable: false),
+                    Active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()")
                 },
                 constraints: table =>
                 {
@@ -109,10 +109,10 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Curriculo",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CursoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CursoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Descricao = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,11 +129,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Aluno",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PessoaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CertidaoNumero = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CertidaoTipo = table.Column<int>(type: "int", nullable: false),
-                    Ativo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PessoaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CertidaoNumero = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    CertidaoTipo = table.Column<int>(type: "integer", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
@@ -150,18 +150,18 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Endereco",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PessoaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CEP = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Logradouro = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Numero = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Complemento = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Bairro = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Cidade = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Pais = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Tipo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Principal = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PessoaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CEP = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Logradouro = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Numero = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Complemento = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Bairro = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Cidade = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Estado = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Pais = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Tipo = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Principal = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -178,11 +178,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "FotoPessoa",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PessoaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PessoaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ContentType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Length = table.Column<long>(type: "bigint", nullable: false),
-                    StoragePath = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false)
+                    StoragePath = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,10 +199,10 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Funcionario",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    tipoFuncionario = table.Column<int>(type: "int", nullable: false),
-                    PessoaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    tipoFuncionario = table.Column<int>(type: "integer", nullable: false),
+                    PessoaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,8 +225,8 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "RoleUser",
                 columns: table => new
                 {
-                    RolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RolesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,8 +249,8 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "GradeCurricular",
                 columns: table => new
                 {
-                    CurriculoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DisciplinaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CurriculoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DisciplinaId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -273,11 +273,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Turma",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PeriodoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CurriculoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CodigoTurma = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CapacidadeMaxima = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PeriodoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurriculoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CodigoTurma = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CapacidadeMaxima = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -300,12 +300,12 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Unidade",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CurriculoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Numero = table.Column<int>(type: "int", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Peso = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    NotaObtida = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurriculoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Numero = table.Column<int>(type: "integer", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Peso = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    NotaObtida = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -322,8 +322,8 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "ResponsavelAluno",
                 columns: table => new
                 {
-                    AlunoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ResponsavelId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    AlunoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ResponsavelId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -346,11 +346,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "Matricula",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DataMatricula = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AlunoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Turmaid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    DataMatricula = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    AlunoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Turmaid = table.Column<Guid>(type: "uuid", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -373,9 +373,9 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "TurmaDisciplina",
                 columns: table => new
                 {
-                    TurmaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DisciplinaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FuncionarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TurmaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DisciplinaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FuncionarioId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -404,11 +404,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "AtividadeAvaliativa",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UnidadeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Peso = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    NotaObtida = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UnidadeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Peso = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    NotaObtida = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -425,10 +425,10 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "HistoricoEscolar",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MatriculaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SituacaoFinal = table.Column<int>(type: "int", nullable: false),
-                    MediaFinal = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MatriculaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SituacaoFinal = table.Column<int>(type: "integer", nullable: false),
+                    MediaFinal = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -445,10 +445,10 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "NotaUnidade",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MatriculaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UnidadeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Valor = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MatriculaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UnidadeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Valor = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -471,10 +471,10 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "NotaAtividadeAvaliativa",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MatriculaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AtividadeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Valor = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MatriculaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AtividadeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Valor = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -497,14 +497,14 @@ namespace Scola360.Academico.Infrastructure.Migrations
                 name: "HistoricoDisciplina",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    HistoricoEscolarId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DisciplinaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MediaFinal = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    Frequencia = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
-                    Aprovado = table.Column<bool>(type: "bit", nullable: false),
-                    CargaHoraria = table.Column<int>(type: "int", nullable: false),
-                    Observacao = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    HistoricoEscolarId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DisciplinaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MediaFinal = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    Frequencia = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: false),
+                    Aprovado = table.Column<bool>(type: "boolean", nullable: false),
+                    CargaHoraria = table.Column<int>(type: "integer", nullable: false),
+                    Observacao = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
