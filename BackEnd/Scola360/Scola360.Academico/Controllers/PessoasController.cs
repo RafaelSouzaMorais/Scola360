@@ -45,4 +45,18 @@ public class PessoasController(IPessoaService service, ILogger<PessoasController
     [ProducesResponseType(typeof(PessoaReadDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] PessoaUpdateDto dto, CancellationToken ct)
         => Ok(await service.UpdateAsync(id, dto, ct));
+
+    [HttpPost("cpf")]
+    [ProducesResponseType(typeof(PessoaReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> SearchByCpf([FromBody] CpfSearchDto dto, CancellationToken ct)
+    {
+        if (dto is null || string.IsNullOrWhiteSpace(dto.Cpf))
+            return BadRequest(new { error = "CPF obrigatório" });
+
+        var pessoa = await service.GetByCpfAsync(dto.Cpf, ct);
+        return pessoa is null ? NotFound() : Ok(pessoa);
+    }
 }

@@ -45,6 +45,12 @@ public class PessoaService(IPessoaRepository repo, IMapper mapper, ILogger<Pesso
         return entity is null ? null : mapper.Map<PessoaReadDto>(entity);
     }
 
+    public async Task<PessoaReadDto?> GetByCpfAsync(string cpf, CancellationToken ct = default)
+    {
+        var entity = await repo.GetByCpfAsync(cpf, ct);
+        return entity is null ? null : mapper.Map<PessoaReadDto>(entity);
+    }
+
     public async Task<IReadOnlyList<PessoaReadDto>> GetAsync(string? nome, CancellationToken ct = default)
     {
         var list = await repo.GetAsync(nome, ct);
@@ -66,5 +72,10 @@ public class PessoaService(IPessoaRepository repo, IMapper mapper, ILogger<Pesso
         entity.Naturalidade = dto.Naturalidade;
         await repo.UpdateAsync(entity, ct);
         return mapper.Map<PessoaReadDto>(entity);
+    }
+
+    public async Task<bool> CpfExistsAsync(string cpf, CancellationToken ct = default)
+    {
+        return await repo.CpfExistsAsync(cpf, ct);
     }
 }

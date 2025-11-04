@@ -8,7 +8,7 @@ using Scola360.Academico.Domain.Interfaces;
 
 namespace Scola360.Academico.Application.Services;
 
-public class AlunoService(IAlunoRepository repo, IResponsavelAlunoRepository repoResponsavelAluno, IMapper mapper, ILogger<AlunoService> logger) : IAlunoService
+public class AlunoService(IAlunoRepository repo, IResponsavelAlunoRepository repoResponsavelAluno, IMapper mapper, ILogger<AlunoService> logger, IPessoaService pessoaService) : IAlunoService
 {
     public async Task<AlunoReadDto> CreateAsync(AlunoCreateDto dto, CancellationToken ct = default)
     {
@@ -21,7 +21,7 @@ public class AlunoService(IAlunoRepository repo, IResponsavelAlunoRepository rep
         if (dto.Sexo is < Sexo.NaoInformado or > Sexo.Outro)
             throw new ArgumentException("Sexo inválido");
 
-        if (await repo.CpfExistsAsync(dto.CPF, ct))
+        if (await pessoaService.CpfExistsAsync(dto.CPF, ct))
         {
             logger.LogWarning("CPF já cadastrado: {CPF}", dto.CPF);
             throw new InvalidOperationException("CPF já cadastrado");

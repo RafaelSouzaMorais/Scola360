@@ -11,5 +11,6 @@ public class PessoaProfile : Profile
     {
         CreateMap<Endereco, EnderecoReadDto>();
         CreateMap<Pessoa, PessoaReadDto>();
+        CreateMap<PessoaReadDto, Pessoa>();
     }
 }

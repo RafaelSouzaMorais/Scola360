@@ -60,6 +60,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.AddScoped<IAlunoService, AlunoService>();
 
+// Funcionarios DI
+builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+
 // Endereco DI
 builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
 builder.Services.AddScoped<IEnderecoService, EnderecoService>();
@@ -94,7 +98,8 @@ builder.Services.AddAutoMapper(typeof(AlunoProfile).Assembly,
                                typeof(DisciplinaProfile).Assembly,
                                typeof(CursoProfile).Assembly,
                                typeof(PeriodoProfile).Assembly,
-                               typeof(CurriculoProfile).Assembly);
+                               typeof(CurriculoProfile).Assembly,
+                               typeof(FuncionarioProfile).Assembly);
 
 // Configure JWT Auth
 var jwtKey = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key") ?? "dev-secret-change-me-32-bytes-minimum";

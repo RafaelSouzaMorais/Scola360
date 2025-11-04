@@ -17,6 +17,9 @@ public class PessoaRepository(AppDbContext db) : IPessoaRepository
     public async Task<Pessoa?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await db.Pessoas.AsNoTracking().Include(p => p.Enderecos).FirstOrDefaultAsync(p => p.Id == id, ct);
 
+    public async Task<Pessoa?> GetByCpfAsync(string cpf, CancellationToken ct = default)
+        => await db.Pessoas.AsNoTracking().Include(p => p.Enderecos).FirstOrDefaultAsync(p => p.CPF == cpf, ct);
+
     public async Task<IReadOnlyList<Pessoa>> GetAsync(string? nome, CancellationToken ct = default)
     {
         var q = db.Pessoas.AsNoTracking().Include(p => p.Enderecos).AsQueryable();
@@ -30,4 +33,7 @@ public class PessoaRepository(AppDbContext db) : IPessoaRepository
         db.Pessoas.Update(pessoa);
         await db.SaveChangesAsync(ct);
     }
+
+    public async Task<bool> CpfExistsAsync(string cpf, CancellationToken ct = default)
+        => await db.Pessoas.AnyAsync(p => p.CPF == cpf, ct);
 }

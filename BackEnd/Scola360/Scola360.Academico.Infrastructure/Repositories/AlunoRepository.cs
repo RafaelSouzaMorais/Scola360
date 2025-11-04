@@ -7,9 +7,6 @@ namespace Scola360.Academico.Infrastructure.Repositories;
 
 public class AlunoRepository(AppDbContext db) : IAlunoRepository
 {
-    public async Task<bool> CpfExistsAsync(string cpf, CancellationToken ct = default)
-        => await db.Set<Pessoa>().AnyAsync(p => p.CPF == cpf, ct);
-
     public async Task<Aluno> AddAsync(Aluno aluno, CancellationToken ct = default)
     {
         db.Set<Aluno>().Add(aluno);
