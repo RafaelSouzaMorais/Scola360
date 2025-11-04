@@ -74,7 +74,7 @@ const MainSidebar = ({ collapsed, setCollapsed }) => {
         hasPermission("teachers") && {
           key: "/teachers",
           icon: <TeamOutlined />,
-          label: "Professores",
+          label: "Funcionários",
         },
       ].filter(Boolean),
     },

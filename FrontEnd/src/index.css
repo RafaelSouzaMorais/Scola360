@@ -60,3 +60,69 @@ body {
   display: inline-block;
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* Forçar a cor do cursor de texto (caret) para preto em campos editáveis */
+input,
+textarea,
+.ant-input,
+.ant-input input,
+.ant-input-affix-wrapper input,
+.ant-select .ant-select-selection-search-input,
+.ant-picker input,
+[contenteditable="true"] {
+  caret-color: #000 !important;
+}
+
+/* Evita flicker inicial ao focar (alguns temas alteram o caret no :focus) */
+*:focus,
+*:focus-visible {
+  caret-color: #000 !important;
+}
+
+/* Estados de foco específicos do Ant Design */
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper:focus-within .ant-input,
+.ant-select-focused .ant-select-selection-search-input,
+.ant-picker-focused input {
+  caret-color: #000 !important;
+}
+
+/* Tema escuro do filtro, garantir caret preto mesmo com texto claro */
+.search-filters.dark input,
+.search-filters.dark .ant-input,
+.search-filters.dark .ant-select .ant-select-selection-search-input,
+.search-filters.dark .ant-picker input {
+  caret-color: #000 !important;
+}
+
+/* Campos de filtro com indicação visual */
+.filter-field {
+  position: relative;
+  width: 100%;
+}
+
+.filter-field .ant-select,
+.filter-field .ant-input,
+.filter-field input,
+.filter-field textarea,
+.filter-field .ant-picker {
+  width: 100%;
+}
+
+.filter-field-badge {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  z-index: 1;
+}
+
+.filter-field--search {
+  border-left: 3px solid #1677ff;
+  padding-left: 8px;
+}
+
+.filter-field--local {
+  border-left: 3px solid #bfbfbf;
+  padding-left: 8px;
+}

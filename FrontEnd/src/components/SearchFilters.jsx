@@ -15,6 +15,10 @@ const SearchFilters = ({
   className = "",
   gutter = [16, 8],
   justify = "start",
+  // Permite customizar o tamanho dos campos em cada breakpoint
+  fieldColProps = { xs: 24, sm: 12, md: 12, lg: 8, xl: 6 },
+  // Permite customizar a coluna dos botões
+  actionsColProps = { xs: 24, sm: 24, md: 24, lg: "auto", xl: "auto" },
 }) => {
   const handleSearch = () => {
     if (onSearch) {
@@ -33,13 +37,13 @@ const SearchFilters = ({
       <Row gutter={gutter} align="middle" justify={justify} wrap>
         {/* Renderiza os campos de filtro passados como children */}
         {React.Children.map(children, (child, index) => (
-          <Col key={index} xs={24} sm={12} md={8} lg={6} xl={4}>
+          <Col key={index} {...fieldColProps}>
             {child}
           </Col>
         ))}
 
         {/* Botões de ação */}
-        <Col xs={24} sm={24} md={24} lg="auto" xl="auto">
+        <Col {...actionsColProps}>
           <Space wrap className="search-filters-actions">
             {showSearchButton && (
               <Button
@@ -64,5 +68,8 @@ const SearchFilters = ({
     </div>
   );
 };
+
+export const FilterRole = ({ children }) => children;
+// Você usa <FilterRole role="search"> ou role="local" só para semântica/organização
 
 export default SearchFilters;

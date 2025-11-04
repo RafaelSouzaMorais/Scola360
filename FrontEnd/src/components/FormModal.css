@@ -25,6 +25,12 @@
   padding: 8px 0;
   max-height: 60vh;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Evitar scroll horizontal no corpo do modal */
+.form-modal .ant-modal-body {
+  overflow-x: hidden;
 }
 
 .form-modal-footer {
@@ -109,6 +115,7 @@
   .form-modal .ant-modal-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px;
   }
 

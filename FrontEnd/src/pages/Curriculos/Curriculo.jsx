@@ -34,8 +34,10 @@ export default function Curriculo() {
   // Lista de currículos
   const [curriculos, setCurriculos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filtroNome, setFiltroNome] = useState("");
-  const [filtroCursoId, setFiltroCursoId] = useState(null);
+
+  // Estados de filtro
+  const [filtroCursoId, setFiltroCursoId] = useState(null); // USADO no Buscar (API)
+  const [filtroNome, setFiltroNome] = useState(""); // SOMENTE local/limpar
 
   // Detalhes - grade dentro do modal
   const [disciplinas, setDisciplinas] = useState([]);
@@ -61,18 +63,33 @@ export default function Curriculo() {
     }
   };
 
+  // Buscar: só usa filtros "de busca" (ex.: cursoId)
   const handleBuscar = async () => {
-    setLoading(true);
     try {
-      let data;
+      setLoading(true);
+      let lista = [];
       if (filtroCursoId) {
-        data = await listarCurriculosPorCurso(filtroCursoId);
+        lista = await listarCurriculosPorCurso(filtroCursoId); // GET /api/curriculos/curso/{cursoId}
       } else {
-        data = await listarCurriculos();
+        lista = await listarCurriculos(); // fallback: todos
       }
-      setCurriculos(Array.isArray(data) ? data : []);
-    } catch (err) {
+      setCurriculos(lista);
+    } catch (e) {
       message.error("Erro ao buscar currículos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Limpar: limpa todos os campos (buscar + auxiliares)
+  const handleClearFilters = async () => {
+    setFiltroCursoId(null);
+    setFiltroNome("");
+    // Recarrega padrão (opcional)
+    try {
+      setLoading(true);
+      const lista = await listarCurriculos();
+      setCurriculos(lista);
     } finally {
       setLoading(false);
     }
@@ -106,9 +123,12 @@ export default function Curriculo() {
     fetchCursos();
   }, []);
 
+  // Filtragem local por nome (não influencia o Buscar)
   const curriculosFiltrados = useMemo(() => {
+    const termo = (filtroNome || "").toLowerCase();
+    if (!termo) return curriculos;
     return curriculos.filter((c) =>
-      c.nome?.toLowerCase().includes(filtroNome.toLowerCase())
+      (c.nome || "").toLowerCase().includes(termo)
     );
   }, [curriculos, filtroNome]);
 
@@ -338,39 +358,34 @@ export default function Curriculo() {
 
       <SearchFilters
         onSearch={handleBuscar}
-        onClear={() => {
-          setFiltroNome("");
-          setFiltroCursoId(null);
-        }}
+        onClear={handleClearFilters}
         loading={loading}
+        showSearchButton={true} // pode ocultar em telas que não usam Buscar
+        fieldColProps={{ xs: 24, sm: 12, md: 12, lg: 8, xl: 6 }}
       >
-        <Row gutter={[8, 8]}>
-          <Col xs={24} sm={12}>
-            <Select
-              showSearch
-              placeholder="Filtrar por curso"
-              options={cursos}
-              value={filtroCursoId}
-              onChange={(v) => setFiltroCursoId(v)}
-              style={{ width: "100%" }}
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              allowClear
-            />
-          </Col>
-          <Col xs={24} sm={12}>
-            <Input
-              placeholder="Pesquisar por nome"
-              value={filtroNome}
-              onChange={(e) => setFiltroNome(e.target.value)}
-              allowClear
-            />
-          </Col>
-        </Row>
+        {/* Campo de BUSCA (API) */}
+        <Select
+          showSearch
+          placeholder="Filtrar por curso"
+          options={cursos}
+          value={filtroCursoId}
+          onChange={(v) => setFiltroCursoId(v)}
+          style={{ width: "100%" }}
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          }
+          allowClear
+          role="search"
+        />
+        {/* Campo APENAS LOCAL (limpar também limpa) */}
+        <Input
+          placeholder="Pesquisar por nome (local)"
+          value={filtroNome}
+          onChange={(e) => setFiltroNome(e.target.value)}
+          allowClear
+          role="local"
+        />
       </SearchFilters>
 
       <Row gutter={[16, 16]}>
@@ -417,6 +432,7 @@ export default function Curriculo() {
                   showSearch
                   placeholder="Selecione o curso"
                   options={cursos}
+                  style={{ width: "100%" }}
                   optionFilterProp="label"
                   filterOption={(input, option) =>
                     (option?.label ?? "")

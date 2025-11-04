@@ -12,7 +12,7 @@ import Disciplinas from "./pages/Disciplinas/Disciplina";
 import Cursos from "./pages/Cursos/Curso";
 import Curriculo from "./pages/Curriculos/Curriculo";
 import Periodos from "./pages/Periodos/Periodo";
-import Professores from "./pages/Professores/Professor";
+import Professores from "./pages/Funcionarios/Funcionario";
 import Turmas from "./pages/Turmas/Turma";
 
 // Componente de rota protegida
