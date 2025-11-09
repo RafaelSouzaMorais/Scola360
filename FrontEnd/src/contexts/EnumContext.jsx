@@ -10,6 +10,7 @@ const EnumContext = createContext({
   tipoFuncionario: [],
   situacaoFinal: [],
   tipoCalculoNota: [],
+  turno: [],
   loading: true,
 });
 
@@ -21,6 +22,7 @@ export function EnumProvider({ children }) {
   const [tipoFuncionario, setTipoFuncionario] = useState([]);
   const [situacaoFinal, setSituacaoFinal] = useState([]);
   const [tipoCalculoNota, setTipoCalculoNota] = useState([]);
+  const [turno, setTurno] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
@@ -56,6 +58,7 @@ export function EnumProvider({ children }) {
         setTipoFuncionario(convertToOptions(enumsData.tipoFuncionario));
         setSituacaoFinal(convertToOptions(enumsData.situacaoFinal));
         setTipoCalculoNota(convertToOptions(enumsData.tipoCalculoNota));
+        setTurno(convertToOptions(enumsData.turno));
       } catch (err) {
         console.error("Erro ao carregar enums:", err);
         // Limpa todos os enums em caso de erro
@@ -66,6 +69,7 @@ export function EnumProvider({ children }) {
         setTipoFuncionario([]);
         setSituacaoFinal([]);
         setTipoCalculoNota([]);
+        setTurno([]);
       } finally {
         setLoading(false);
       }
@@ -83,6 +87,7 @@ export function EnumProvider({ children }) {
       setTipoFuncionario([]);
       setSituacaoFinal([]);
       setTipoCalculoNota([]);
+      setTurno([]);
       setLoading(false);
     }
   }, [isAuthenticated]);
@@ -97,6 +102,7 @@ export function EnumProvider({ children }) {
         tipoFuncionario,
         situacaoFinal,
         tipoCalculoNota,
+        turno,
         loading,
       }}
     >

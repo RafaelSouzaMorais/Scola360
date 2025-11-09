@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Space } from "antd";
+import { Modal, Button, Space, Spin } from "antd";
 import { SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import "./FormModal.css";
 
@@ -27,6 +27,7 @@ const FormModal = ({
   cancelText = "Cancelar",
   createTitle = "Novo Registro",
   editTitle = "Editar Registro",
+  spinText = "Salvando...",
 
   // Configurações dos botões
   showSaveButton = true,
@@ -45,6 +46,11 @@ const FormModal = ({
   // Define o texto do botão salvar baseado no mode se não for fornecido
   const buttonSaveText = saveText || (mode === "edit" ? "Atualizar" : "Salvar");
 
+  // Debug: monitora o loading
+  React.useEffect(() => {
+    console.log("🔄 FormModal - loading prop:", loading);
+  }, [loading]);
+
   const handleSave = () => {
     if (onSave) {
       onSave();
@@ -60,6 +66,7 @@ const FormModal = ({
   };
 
   const footer = (
+    //desabilta os botões durante o loading
     <div className="form-modal-footer" style={footerStyle}>
       <Space>
         {showCancelButton && (
@@ -68,6 +75,7 @@ const FormModal = ({
             onClick={handleCancel}
             className="cancel-button"
             {...cancelButtonProps}
+            disabled={loading}
           >
             {cancelText}
           </Button>
@@ -93,16 +101,19 @@ const FormModal = ({
     <Modal
       title={modalTitle}
       open={open}
-      onCancel={onClose}
+      onCancel={loading ? undefined : onClose}
       width={width}
       centered={centered}
       destroyOnClose={destroyOnClose}
-      maskClosable={maskClosable}
+      maskClosable={!loading && maskClosable}
+      closable={!loading}
       footer={footer}
       className={`form-modal ${mode}-mode ${className}`}
       styles={{ body: bodyStyle }}
     >
-      <div className="form-modal-content">{children}</div>
+      <Spin spinning={loading} tip="Processando...">
+        <div className="form-modal-content">{children}</div>
+      </Spin>
     </Modal>
   );
 };

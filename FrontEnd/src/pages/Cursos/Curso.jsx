@@ -171,6 +171,7 @@ export default function Cursos() {
         onSearch={handleSearch}
         onClear={handleClearFilters}
         loading={loading}
+        showSearchButton={false}
       >
         <Input
           placeholder="Pesquisar por nome"

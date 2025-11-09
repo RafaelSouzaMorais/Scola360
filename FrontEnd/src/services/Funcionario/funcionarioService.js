@@ -63,3 +63,12 @@ export async function deletarFuncionario(id) {
   console.log("deletando funcionario com id:", id);
   await api.delete(`/api/funcionarios/${id}`);
 }
+
+/**
+ * Busca professores ativos para dropdown.
+ * @returns {Promise<Array>} Lista de professores com id e nomeCompleto
+ */
+export async function buscarProfessoresDropdown() {
+  const { data } = await api.get("/api/funcionarios/professores/dropdown");
+  return data;
+}
