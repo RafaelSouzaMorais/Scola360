@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Scola360.Academico.Application.DTOs.Funcionarios;
@@ -8,6 +6,7 @@ using Scola360.Academico.Application.Interfaces;
 using Scola360.Academico.Domain.Entities;
 using Scola360.Academico.Domain.Enums;
 using Scola360.Academico.Domain.Interfaces;
+using System.Linq;
 
 namespace Scola360.Academico.Application.Services;
 
@@ -15,9 +14,9 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
 {
     public async Task<FuncionarioReadDto> CreateAsync(FuncionarioCreateDto dto, CancellationToken ct = default)
     {
-        // valida??o simples
+        // validação simples
         if (string.IsNullOrWhiteSpace(dto.NomeCompleto) || string.IsNullOrWhiteSpace(dto.CPF))
-            throw new ArgumentException("Campos obrigat?rios ausentes");
+            throw new ArgumentException("Campos obrigatórios ausentes");
 
         if (dto.CorRaca is < CorRaca.NaoInformado or > CorRaca.Indigena)
             throw new ArgumentException("Cor/Raça inválida");
@@ -26,7 +25,8 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
         if (dto.TipoFuncionario is < TipoFuncionario.Professor or > TipoFuncionario.Diretor)
             throw new ArgumentException("Tipo de funcionário inválido");
 
-        if (await pessoaService.CpfExistsAsync(dto.CPF, ct) && dto.pessoaId == null)
+        bool cpfExists = await pessoaService.CpfExistsAsync(dto.CPF, ct);
+        if (cpfExists && dto.pessoaId == null)
         {
             logger.LogWarning("CPF já cadastrado: {CPF}", dto.CPF);
             throw new InvalidOperationException("CPF já cadastrado");
@@ -35,7 +35,7 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
         if (dto.pessoaId != null)
         {
             // Verifica se a pessoa existe
-            var existingFuncionario = await repo.GetByPessoaIdAsync(dto.pessoaId.Value, ct);
+            Funcionario? existingFuncionario = await repo.GetByPessoaIdAsync(dto.pessoaId.Value, ct);
             if (existingFuncionario != null)
             {
                 logger.LogWarning("Pessoa com ID {PessoaId} já é um funcionário", dto.pessoaId);
@@ -43,7 +43,11 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
             }
             else
             {
-                var pessoaDto = await pessoaService.GetByIdAsync(dto.pessoaId.Value, ct) ?? throw new KeyNotFoundException("Pessoa não encontrada");
+                PessoaReadDto? pessoaDto = await pessoaService.GetByIdAsync(dto.pessoaId.Value, ct);
+                if (pessoaDto == null)
+                {
+                    throw new KeyNotFoundException("Pessoa não encontrada");
+                }
                 pessoa = mapper.Map<Pessoa>(pessoaDto);
             }
         }
@@ -62,7 +66,8 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
                 Nacionalidade = dto.Nacionalidade,
                 Naturalidade = dto.Naturalidade
             };
-            pessoa = mapper.Map<Pessoa>(await pessoaService.CreateAsync(pessoaDto, ct));
+            PessoaReadDto pessoaReadDto = await pessoaService.CreateAsync(pessoaDto, ct);
+            pessoa = mapper.Map<Pessoa>(pessoaReadDto);
         }
 
         var entity = new Funcionario
@@ -90,7 +95,8 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
         entity.Pessoa.Nacionalidade = dto.Nacionalidade;
         entity.Pessoa.Naturalidade = dto.Naturalidade;
         entity.tipoFuncionario = dto.TipoFuncionario;
-        await repo.UpdateAsync(entity, ct);
+        Task updateTask = repo.UpdateAsync(entity, ct);
+        await updateTask;
         return mapper.Map<FuncionarioReadDto>(entity);
     }
 
@@ -102,7 +108,7 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
 
     public async Task<IReadOnlyList<FuncionarioReadDto>> GetAsync(string? nome, CancellationToken ct = default)
     {
-        var list = await repo.GetByNameAsync(nome, ct);
+        IEnumerable<Funcionario> list = await repo.GetByNameAsync(nome, ct);
         return list.Select(mapper.Map<FuncionarioReadDto>).ToList();
     }
 
@@ -111,5 +117,18 @@ public class FuncionarioService(IFuncionarioRepository repo, IPessoaService pess
         var entity = await repo.GetByIdAsync(id, ct);
         if (entity == null) throw new KeyNotFoundException("Funcionário não encontrado");
         await repo.DeleteAsync(id, ct);
+    }
+
+    public async Task<IReadOnlyList<ProfessorDropdownDto>> GetProfessoresDropdownAsync(CancellationToken ct = default)
+    {
+        var professores = await repo.GetByTipoAsync(TipoFuncionario.Professor, ct);
+        return professores
+            .Select(f => new ProfessorDropdownDto
+            {
+                Id = f.Id,
+                NomeCompleto = f.Pessoa.NomeCompleto
+            })
+            .OrderBy(p => p.NomeCompleto)
+            .ToList();
     }
 }

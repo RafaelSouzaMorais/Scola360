@@ -10,5 +10,6 @@ namespace Scola360.Academico.Domain.Interfaces
         Task<Disciplina> AddAsync(Disciplina disciplina, CancellationToken ct);
         Task<Disciplina> UpdateAsync(Disciplina disciplina, CancellationToken ct);
         Task<bool> DeleteAsync(Guid id, CancellationToken ct);
+        Task<IEnumerable<Disciplina>> GetByCurriculoIdAsync(Guid curriculoId, CancellationToken ct);
     }
 }

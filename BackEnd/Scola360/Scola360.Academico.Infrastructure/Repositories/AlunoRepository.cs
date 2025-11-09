@@ -42,4 +42,14 @@ public class AlunoRepository(AppDbContext db) : IAlunoRepository
         db.Alunos.Update(aluno);
         await db.SaveChangesAsync(ct);
     }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var aluno = await db.Set<Aluno>().FindAsync(new object?[] { id }, ct);
+        if (aluno == null)
+            return false;
+        db.Set<Aluno>().Remove(aluno);
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
 }

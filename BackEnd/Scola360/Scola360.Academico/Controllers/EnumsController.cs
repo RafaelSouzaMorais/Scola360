@@ -34,6 +34,11 @@ public class EnumsController : ControllerBase
         => Ok(Enum.GetValues<TipoFuncionario>()
             .Select(e => new { value = (int)e, name = e.ToString() }));
 
+    [HttpGet("turno")]
+    public IActionResult GetTurno()
+        => Ok(Enum.GetValues<Turno>()
+            .Select(e => new { value = (int)e, name = e.ToString() }));
+
     [HttpGet]
     public IActionResult GetAll()
         => Ok(new
@@ -51,7 +56,8 @@ public class EnumsController : ControllerBase
             SituacaoFinal = Enum.GetValues<SituacaoFinal>()
                 .Select(e => new { value = (int)e, name = e.ToString() }),
             TipoCalculoNota = Enum.GetValues<TipoCalculoNota>()
+                .Select(e => new { value = (int)e, name = e.ToString() }),
+            Turno = Enum.GetValues<Turno>()
                 .Select(e => new { value = (int)e, name = e.ToString() })
-
         });
 }

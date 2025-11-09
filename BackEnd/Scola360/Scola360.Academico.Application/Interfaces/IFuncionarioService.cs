@@ -9,4 +9,5 @@ public interface IFuncionarioService
     Task<IReadOnlyList<FuncionarioReadDto>> GetAsync(string? nome, CancellationToken ct = default);
     Task<FuncionarioReadDto> UpdateAsync(Guid id, FuncionarioUpdateDto dto, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<ProfessorDropdownDto>> GetProfessoresDropdownAsync(CancellationToken ct = default);
 }

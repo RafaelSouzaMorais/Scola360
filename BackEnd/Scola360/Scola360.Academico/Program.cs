@@ -93,13 +93,23 @@ builder.Services.AddScoped<IGradeCurricularRepository, GradeCurricularRepository
 builder.Services.AddScoped<ICurriculoService, CurriculoService>();
 builder.Services.AddScoped<IGradeCurricularService, GradeCurricularService>();
 
+// Turma DI
+builder.Services.AddScoped<ITurmaRepository, TurmaRepository>();
+builder.Services.AddScoped<ITurmaService, TurmaService>();
+
+// TurmaDisciplina DI
+builder.Services.AddScoped<ITurmaDisciplinaRepository, TurmaDisciplinaRepository>();
+builder.Services.AddScoped<ITurmaDisciplinaService, TurmaDisciplinaService>();
+
 builder.Services.AddAutoMapper(typeof(AlunoProfile).Assembly,
                                typeof(PessoaProfile).Assembly,
                                typeof(DisciplinaProfile).Assembly,
                                typeof(CursoProfile).Assembly,
                                typeof(PeriodoProfile).Assembly,
                                typeof(CurriculoProfile).Assembly,
-                               typeof(FuncionarioProfile).Assembly);
+                               typeof(FuncionarioProfile).Assembly,
+                               typeof(TurmaProfile).Assembly,
+                               typeof(TurmaDisciplinaProfile).Assembly);
 
 // Configure JWT Auth
 var jwtKey = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key") ?? "dev-secret-change-me-32-bytes-minimum";

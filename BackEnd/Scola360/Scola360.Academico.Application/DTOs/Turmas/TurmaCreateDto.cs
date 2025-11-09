@@ -1,21 +1,19 @@
-﻿using Scola360.Academico.Domain.Enums;
+using Scola360.Academico.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Scola360.Academico.Domain.Entities
+namespace Scola360.Academico.Application.DTOs.Turmas
 {
-    public class Turma
+    public record class TurmaCreateDto
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
         public Guid PeriodoId { get; set; }
-        public Periodo Periodo { get; set; } = null!;
         public Guid CurriculoId { get; set; }
-        public Curriculo Curriculo { get; set; } = null!;
         public string CodigoTurma { get; set; } = string.Empty;
         public int CapacidadeMaxima { get; set; }
         public Turno Turno { get; set; }
+        public List<TurmaDisciplinaCreateDto>? TurmasDisciplinas { get; set; }
     }
 }

@@ -80,4 +80,23 @@ public class FuncionariosController(IFuncionarioService service, ILogger<Funcion
             return NotFound();
         }
     }
+
+    /// <summary>
+    /// Retorna lista de professores para dropdown (apenas Id e Nome Completo).
+    /// </summary>
+    [HttpGet("professores/dropdown")]
+    [ProducesResponseType(typeof(IEnumerable<ProfessorDropdownDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProfessoresDropdown(CancellationToken ct)
+    {
+        try
+        {
+            var professores = await service.GetProfessoresDropdownAsync(ct);
+            return Ok(professores);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Erro ao buscar professores para dropdown");
+            return StatusCode(500, new { error = "Erro interno do servidor" });
+        }
+    }
 }

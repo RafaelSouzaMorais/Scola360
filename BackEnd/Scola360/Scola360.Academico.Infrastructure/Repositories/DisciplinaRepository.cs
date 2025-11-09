@@ -56,5 +56,15 @@ namespace Scola360.Academico.Infrastructure.Repositories
             await db.SaveChangesAsync(ct);
             return disciplina;
         }
+
+        public async Task<IEnumerable<Disciplina>> GetByCurriculoIdAsync(Guid curriculoId, CancellationToken ct)
+        {
+            return await db.Set<GradeCurricular>()
+                .Where(gc => gc.CurriculoId == curriculoId)
+                .Include(gc => gc.Disciplina)
+                .Select(gc => gc.Disciplina)
+                .AsNoTracking()
+                .ToListAsync(ct);
+        }
     }
 }

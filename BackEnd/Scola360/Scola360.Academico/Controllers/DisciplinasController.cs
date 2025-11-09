@@ -72,4 +72,28 @@ public class DisciplinasController(IDisciplinaService service, ILogger<Disciplin
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Retorna disciplinas por currículo para dropdown.
+    /// </summary>
+    [HttpGet("curriculo/{curriculoId:guid}/dropdown")]
+    [ProducesResponseType(typeof(IEnumerable<DisciplinaDropdownDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDisciplinasByCurriculoDropdown([FromRoute] Guid curriculoId, CancellationToken ct)
+    {
+        try
+        {
+            var disciplinas = await service.GetDisciplinasByCurriculoIdAsync(curriculoId, ct);
+            return Ok(disciplinas);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "Erro ao buscar disciplinas por currículo");
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Erro ao buscar disciplinas por currículo");
+            return StatusCode(500, new { error = "Erro interno do servidor" });
+        }
+    }
 }

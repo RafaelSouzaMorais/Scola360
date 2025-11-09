@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Scola360.Academico.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Scola360.Academico.Infrastructure.Data;
 namespace Scola360.Academico.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251108230428_AdicionandoTurno")]
+    partial class AdicionandoTurno
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -587,8 +590,7 @@ namespace Scola360.Academico.Infrastructure.Migrations
 
             modelBuilder.Entity("Scola360.Academico.Domain.Entities.TurmaDisciplina", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("TurmaId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("DisciplinaId")
@@ -597,17 +599,11 @@ namespace Scola360.Academico.Infrastructure.Migrations
                     b.Property<Guid>("FuncionarioId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("TurmaId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
+                    b.HasKey("TurmaId", "DisciplinaId", "FuncionarioId");
 
                     b.HasIndex("DisciplinaId");
 
                     b.HasIndex("FuncionarioId");
-
-                    b.HasIndex("TurmaId", "DisciplinaId", "FuncionarioId")
-                        .IsUnique();
 
                     b.ToTable("TurmaDisciplina", (string)null);
                 });

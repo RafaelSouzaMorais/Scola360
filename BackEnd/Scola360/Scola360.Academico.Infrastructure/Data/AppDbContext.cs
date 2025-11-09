@@ -235,10 +235,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.ToTable("Turma");
         });
 
-        // TurmaDisciplina (PK composta: TurmaId + DisciplinaId + FuncionarioId)
+        // TurmaDisciplina (PK: Id, índices únicos na composição TurmaId + DisciplinaId + FuncionarioId)
         modelBuilder.Entity<TurmaDisciplina>(b =>
         {
-            b.HasKey(x => new { x.TurmaId, x.DisciplinaId, x.FuncionarioId });
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => new { x.TurmaId, x.DisciplinaId, x.FuncionarioId }).IsUnique();
             b.HasOne(td => td.Turma)
                 .WithMany()
                 .HasForeignKey(td => td.TurmaId)

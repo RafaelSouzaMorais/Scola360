@@ -38,7 +38,8 @@ namespace Scola360.Academico.Application.Services
 
         public async Task<DisciplinaReadDto> DisciplinaByIdAsync(Guid id, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var disciplina = await repo.GetByIdAsync(id, ct);
+            return disciplina is null ? throw new KeyNotFoundException("Disciplina não encontrada") : mapper.Map<DisciplinaReadDto>(disciplina);
         }
 
         public async Task<IEnumerable<DisciplinaReadDto>> GetAllDisciplinasAsync(CancellationToken ct = default)
@@ -60,6 +61,23 @@ namespace Scola360.Academico.Application.Services
             if (id == Guid.Empty)
                 throw new ArgumentException("O ID da disciplina é inválido.");
             return await repo.DeleteAsync(id, ct);
+        }
+
+        public async Task<IEnumerable<DisciplinaDropdownDto>> GetDisciplinasByCurriculoIdAsync(Guid curriculoId, CancellationToken ct = default)
+        {
+            if (curriculoId == Guid.Empty)
+                throw new ArgumentException("O ID do currículo é inválido.");
+
+            var disciplinas = await repo.GetByCurriculoIdAsync(curriculoId, ct);
+            return disciplinas
+                .Select(d => new DisciplinaDropdownDto
+                {
+                    Id = d.Id,
+                    Nome = d.Nome,
+                    Codigo = d.Codigo
+                })
+                .OrderBy(d => d.Nome)
+                .ToList();
         }
     }
 }
